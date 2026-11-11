@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit & Time Focus Widget</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-hover: #263449;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .date-badge {
+      background: var(--card);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 720px) {
+      .grid {
+        grid-template-columns: 1.1fr 0.9fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Focus Spotlight Module */
+    .focus-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--accent);
+    }
+
+    .focus-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select, input {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .timer-display {
+      font-size: 2.2rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      margin: 8px 0;
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #052e16;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-sm {
+      padding: 5px 9px;
+      font-size: 0.78rem;
+      border-radius: 6px;
+    }
+
+    /* Habit List */
+    .habit-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .habit-item.focused {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .habit-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .habit-name {
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .habit-stats {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--card);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .habit-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .quick-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    /* Analysis Distribution Bar */
+    .dist-bar {
+      display: flex;
+      height: 18px;
+      width: 100%;
+      background: var(--bg);
+      border-radius: 9px;
+      overflow: hidden;
+      margin: 12px 0 16px 0;
+      border: 1px solid var(--border);
+    }
+
+    .dist-segment {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .analysis-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+
+    .analysis-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-boxes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stat-box {
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .add-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .add-form input[type="text"] {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .add-form input[type="number"] {
+      width: 90px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Habit & Time Analytics</h1>
+    <div class="date-badge" id="currentDate"></div>
+  </div>
+
+  <!-- PRIORITY FOCUS MODULE -->
+  <div class="card focus-card">
+    <div class="card-title">
+      <span>🎯 Priority Habit Focus Mode</span>
+      <span id="focusTargetLabel" style="color: var(--accent);"></span>
+    </div>
+    <div class="focus-controls">
+      <div style="flex: 1; min-width: 200px;">
+        <label style="font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 4px;">Select Habit to Focus On:</label>
+        <select id="focusSelect" style="width: 100%;" onchange="setFocusHabit(this.value)"></select>
+      </div>
+      <div class="timer-display" id="timerDisplay">00:00:00</div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn" id="startBtn" onclick="toggleTimer()">Start</button>
+        <button class="btn btn-success" onclick="commitTimer()">+ Log Session</button>
+        <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT COLUMN: HABIT TRACKER -->
+    <div>
+      <div class="card">
+        <div class="card-title">
+          <span>📋 Daily Habits & Time Log</span>
+          <button class="btn btn-secondary btn-sm" onclick="resetDailyLogs()">New Day Reset</button>
+        </div>
+
+        <div id="habitList"></div>
+
+        <div class="add-form">
+          <input type="text" id="newHabitName" placeholder="New habit name...">
+          <input type="number" id="newHabitTarget" placeholder="Mins" min="5" value="30">
+          <button class="btn" onclick="addHabit()">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: TIME SPENT ANALYSIS -->
+    <div>
+      <div class="card">
+        <div class="card-title">
+          <span>📊 Time Spent Analysis</span>
+        </div>
+
+        <div class="summary-boxes">
+          <div class="stat-box">
+            <div class="stat-val" id="totalSpentVal">0m</div>
+            <div class="stat-label">Total Time Logged</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="targetCompletionVal">0%</div>
+            <div class="stat-label">Daily Target Met</div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.8rem; color: var(--muted);">Time Share Distribution</div>
+        <div class="dist-bar" id="distBar"></div>
+
+        <div id="analysisList"></div>
+      </div>
+
+      <!-- DATA BACKUP MODULE -->
+      <div class="card">
+        <div class="card-title"><span>💾 Data Backup & Sync</span></div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="exportData()">Export JSON</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()">Import JSON</button>
+          <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PALETTE = ['#38bdf8', '#22c55e', '#f59e0b', '#a855f7', '#ec4899', '#14b8a6', '#f97316'];
+    const STORAGE_KEY = 'habit_time_widget_v1';
+
+    let state = {
+      focusHabitId: 1,
+      habits: [
+        { id: 1, name: 'Deep Study / Problem Solving', target: 120, spent: 0, color: '#38bdf8' },
+        { id: 2, name: 'Resistance Training & Fitness', target: 60, spent: 0, color: '#22c55e' },
+        { id: 3, name: 'Daily Newspaper Reading', target: 20, spent: 0, color: '#f59e0b' },
+        { id: 4, name: 'Walking / Active Steps', target: 45, spent: 0, color: '#a855f7' }
+      ]
+    };
+
+    // Timer state
+    let timerInterval = null;
+    let elapsedSeconds = 0;
+
+    function init() {
+      document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+      });
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try { state = JSON.parse(saved); } catch (e) {}
+      }
+      render();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      render();
+    }
+
+    function setFocusHabit(id) {
+      state.focusHabitId = Number(id);
+      saveState();
+    }
+
+    function logTime(id, mins) {
+      const habit = state.habits.find(h => h.id === id);
+      if (habit) {
+        habit.spent = Math.max(0, habit.spent + mins);
+        saveState();
+      }
+    }
+
+    function addHabit() {
+      const nameInput = document.getElementById('newHabitName');
+      const targetInput = document.getElementById('newHabitTarget');
+      const name = nameInput.value.trim();
+      const target = parseInt(targetInput.value, 10) || 30;
+      if (!name) return;
+
+      const newHabit = {
+        id: Date.now(),
+        name,
+        target,
+        spent: 0,
+        color: PALETTE[state.habits.length % PALETTE.length]
+      };
+      state.habits.push(newHabit);
+      if (!state.focusHabitId) state.focusHabitId = newHabit.id;
+      nameInput.value = '';
+      saveState();
+    }
+
+    function deleteHabit(id) {
+      state.habits = state.habits.filter(h => h.id !== id);
+      if (state.focusHabitId === id && state.habits.length > 0) {
+        state.focusHabitId = state.habits[0].id;
+      }
+      saveState();
+    }
+
+    function resetDailyLogs() {
+      state.habits.forEach(h => h.spent = 0);
+      saveState();
+    }
+
+    // Timer Functions
+    function toggleTimer() {
+      const btn = document.getElementById('startBtn');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        btn.textContent = 'Resume';
+      } else {
+        timerInterval = setInterval(() => {
+          elapsedSeconds++;
+          updateTimerUI();
+        }, 1000);
+        btn.textContent = 'Pause';
+      }
+    }
+
+    function updateTimerUI() {
+      const hrs = String(Math.floor(elapsedSeconds / 3600)).padStart(2, '0');
+      const mins = String(Math.floor((elapsedSeconds % 3600) / 60)).padStart(2, '0');
+      const secs = String(elapsedSeconds % 60).padStart(2, '0');
+      document.getElementById('timerDisplay').textContent = `${hrs}:${mins}:${secs}`;
+    }
+
+    function commitTimer() {
+      const minsToAdd = Math.max(1, Math.round(elapsedSeconds / 60));
+      if (elapsedSeconds > 0 && state.focusHabitId) {
+        logTime(state.focusHabitId, minsToAdd);
+        resetTimer();
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      elapsedSeconds = 0;
+      updateTimerUI();
+      document.getElementById('startBtn').textContent = 'Start';
+    }
+
+    function formatMins(m) {
+      if (m < 60) return `${m}m`;
+      const h = Math.floor(m / 60);
+      const rem = m % 60;
+      return rem > 0 ? `${h}h ${rem}m` : `${h}h`;
+    }
+
+    function render() {
+      // 1. Render Focus Selector
+      const select = document.getElementById('focusSelect');
+      select.innerHTML = state.habits.map(h =>
+        `<option value="${h.id}" ${h.id === state.focusHabitId ? 'selected' : ''}>${h.name} (Target: ${h.target}m)</option>`
+      ).join('');
+
+      const activeFocus = state.habits.find(h => h.id === state.focusHabitId);
+      document.getElementById('focusTargetLabel').textContent = activeFocus
+        ? `${ activeFocus.spent }m / ${ activeFocus.target }m logged`
+        : '';
+
+      // 2. Render Habit List
+      const listEl = document.getElementById('habitList');
+      listEl.innerHTML = state.habits.map(h => {
+        const pct = Math.min(100, Math.round((h.spent / h.target) * 100));
+        const isFocused = h.id === state.focusHabitId;
+        return `
+          <div class="habit-item ${isFocused ? 'focused' : ''}">
+            <div class="habit-top">
+              <div class="habit-name">
+                <span class="color-dot" style="background:${h.color}"></span>
+                ${h.name}
+                ${isFocused ? '<span style="font-size:0.7rem; background:var(--accent); color:#000; padding:2px 6px; border-radius:4px;">FOCUS</span>' : ''}
+              </div>
+              <div class="habit-stats">${formatMins(h.spent)} / ${formatMins(h.target)} (${pct}%)</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width:${pct}%; background:${h.color}"></div>
+            </div>
+            <div class="habit-actions">
+              <div class="quick-btns">
+                <button class="btn btn-secondary btn-sm" onclick="logTime(${h.id}, 5)">+5m</button>
+                <button class="btn btn-secondary btn-sm" onclick="logTime(${h.id}, 15)">+15m</button>
+                <button class="btn btn-secondary btn-sm" onclick="logTime(${h.id}, 30)">+30m</button>
+                <button class="btn btn-secondary btn-sm" onclick="logTime(${h.id}, -5)">-5m</button>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-secondary btn-sm" onclick="setFocusHabit(${h.id})">🎯 Focus</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteHabit(${h.id})">✕</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 3. Render Analytics
+      const totalSpent = state.habits.reduce((sum, h) => sum + h.spent, 0);
+      const totalTarget = state.habits.reduce((sum, h) => sum + h.target, 0);
+      const overallPct = totalTarget > 0 ? Math.round((totalSpent / totalTarget) * 100) : 0;
+
+      document.getElementById('totalSpentVal').textContent = formatMins(totalSpent);
+      document.getElementById('targetCompletionVal').textContent = `${overallPct}%`;
+
+      const distBar = document.getElementById('distBar');
+      const analysisList = document.getElementById('analysisList');
+
+      if (totalSpent === 0) {
+        distBar.innerHTML = `<div style="width:100%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--muted);">Log time to view distribution</div>`;
+      } else {
+        distBar.innerHTML = state.habits.map(h => {
+          const share = ((h.spent / totalSpent) * 100).toFixed(1);
+          return `<div class="dist-segment" style="width:${share}%; background:${h.color}" title="${h.name}: ${share}%"></div>`;
+        }).join('');
+      }
+
+      const sortedHabits = [...state.habits].sort((a, b) => b.spent - a.spent);
+      analysisList.innerHTML = sortedHabits.map(h => {
+        const share = totalSpent > 0 ? Math.round((h.spent / totalSpent) * 100) : 0;
+        const remaining = Math.max(0, h.target - h.spent);
+        return `
+          <div class="analysis-row">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="color-dot" style="background:${h.color}"></span>
+              <span>${h.name}</span>
+            </div>
+            <div style="text-align:right;">
+              <strong>${formatMins(h.spent)}</strong>
+              <span style="color:var(--muted); font-size:0.8rem; margin-left:6px;">(${share}% share)</span>
+              <div style="font-size:0.75rem; color:${remaining === 0 ? 'var(--success)' : 'var(--muted)'}">
+                ${remaining === 0 ? '✓ Target Achieved' : `${remaining}m remaining to goal`}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `habit-time-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          state = JSON.parse(e.target.result);
+          saveState();
+        } catch (err) {
+          alert('Invalid backup file format.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    init();
+  </script>
+</body>
+</html>
