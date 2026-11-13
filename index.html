@@ -141,11 +141,29 @@
             flex-wrap: wrap;
         }
 
+        .timer-display-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-right: 8px;
+        }
+
         .timer-display {
             font-size: 2rem;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
-            margin-right: 8px;
+            line-height: 1.1;
+        }
+
+        .timer-bg-status {
+            font-size: 0.68rem;
+            color: var(--accent-green);
+            font-weight: 600;
+            display: none;
+        }
+
+        .timer-bg-status.active {
+            display: block;
         }
 
         button {
@@ -592,14 +610,17 @@
     <div class="focus-bar">
         <div class="focus-selector">
             <div class="focus-label">🎯 Active Focus / Activity Selector</div>
-            <select id="focusHabitSelect"></select>
+            <select id="focusHabitSelect" onchange="saveSelectedHabit()"></select>
         </div>
         <div class="focus-stats" id="globalProgressText">
             0m / 17h 30m Target Covered
             <span id="globalExtraSub">0 / 7 Habits Completed</span>
         </div>
         <div class="timer-controls">
-            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="timer-display-wrap">
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <div class="timer-bg-status" id="timerBgStatus">● Background Sync Active</div>
+            </div>
             <button class="btn-start" id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
             <button class="btn-log" onclick="logSession()">+ Log Session</button>
             <button class="btn-reset" onclick="resetTimer()">Reset</button>
@@ -616,7 +637,7 @@
                 </div>
 
                 <div class="helper-hint">
-                    💡 <strong>Accurate & Flexible:</strong> Each activity counts toward <strong>Planned Target Met</strong> only up to its own target, so extra hours in one activity won't falsely complete the rest of your day.
+                    💡 <strong>Accurate & Flexible:</strong> Each activity counts toward <strong>Planned Target Met</strong> only up to its own target, and the timer uses real-time timestamps so it keeps counting accurately even when your phone screen is off.
                 </div>
 
                 <div class="habit-list" id="habitList"></div>
@@ -681,6 +702,7 @@
 
 <script>
     const STORAGE_KEY = 'habitTrackerData_v5_flexible';
+    const TIMER_STORAGE_KEY = 'habitTrackerTimer_v5';
     const COLORS = ['#8b5cf6', '#3b82f6', '#ec4899', '#f59e0b', '#06b6d4', '#ef4444', '#10b981'];
 
     // Default flexible routine with 2h (120m) Travelling time — 100% editable by user
@@ -695,17 +717,45 @@
     ];
 
     let habits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_HABITS));
+
+    // Background-safe Timestamp Timer State
+    let timerState = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY)) || {
+        isRunning: false,
+        startTime: null,
+        accumulatedMs: 0,
+        selectedHabitId: null
+    };
+
     let timerInterval = null;
-    let elapsedSeconds = 0;
 
     function init() {
         const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
         renderAll();
+        restoreTimerState();
+
+        // Instantly resync timer whenever screen turns back on or tab becomes active
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                updateTimerDisplay();
+            }
+        });
+        window.addEventListener('focus', updateTimerDisplay);
+        window.addEventListener('pageshow', updateTimerDisplay);
     }
 
     function saveData() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+    }
+
+    function saveTimerState() {
+        localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
+    }
+
+    function saveSelectedHabit() {
+        const select = document.getElementById('focusHabitSelect');
+        timerState.selectedHabitId = parseInt(select.value) || null;
+        saveTimerState();
     }
 
     function formatDuration(mins) {
@@ -725,7 +775,7 @@
 
     function renderSelect() {
         const select = document.getElementById('focusHabitSelect');
-        const currentVal = select.value;
+        const currentVal = timerState.selectedHabitId || select.value;
         select.innerHTML = habits.map(h => {
             const targetLabel = h.target > 0 ? `Target: ${formatDuration(h.target)}` : 'Flexible / Open';
             return `<option value="${h.id}">${h.name} (${targetLabel})</option>`;
@@ -802,7 +852,7 @@
         const targetedHabits = habits.filter(h => h.target > 0);
         const totalTarget = targetedHabits.reduce((sum, h) => sum + h.target, 0);
 
-        // KEY FIX: Cap each habit's contribution at its own target so one habit cannot fake 100% completion for the rest
+        // Cap each habit's contribution at its own target so one habit cannot fake 100% completion for the rest
         const effectiveTargetCovered = targetedHabits.reduce((sum, h) => sum + Math.min(h.logged, h.target), 0);
         const totalExtraMins = targetedHabits.reduce((sum, h) => sum + Math.max(0, h.logged - h.target), 0);
         const completedHabitsCount = targetedHabits.filter(h => h.logged >= h.target).length;
@@ -953,25 +1003,70 @@
         }
     }
 
-    // Stopwatch Focus Timer
+    // Background-Safe Timestamp Stopwatch Logic
+    function getElapsedSeconds() {
+        let totalMs = timerState.accumulatedMs || 0;
+        if (timerState.isRunning && timerState.startTime) {
+            totalMs += (Date.now() - timerState.startTime);
+        }
+        return Math.max(0, Math.floor(totalMs / 1000));
+    }
+
+    function restoreTimerState() {
+        const btn = document.getElementById('startStopBtn');
+        const bgStatus = document.getElementById('timerBgStatus');
+        updateTimerDisplay();
+
+        if (timerState.isRunning) {
+            btn.textContent = '⏸ Pause';
+            btn.classList.add('running');
+            bgStatus.classList.add('active');
+            if (!timerInterval) {
+                timerInterval = setInterval(updateTimerDisplay, 1000);
+            }
+        } else {
+            btn.textContent = '▶ Start';
+            btn.classList.remove('running');
+            bgStatus.classList.remove('active');
+        }
+    }
+
     function toggleTimer() {
         const btn = document.getElementById('startStopBtn');
-        if (timerInterval) {
+        const bgStatus = document.getElementById('timerBgStatus');
+
+        if (timerState.isRunning) {
+            // Pause: lock in elapsed milliseconds up to this exact moment
+            timerState.accumulatedMs += (Date.now() - timerState.startTime);
+            timerState.startTime = null;
+            timerState.isRunning = false;
+            saveTimerState();
+
             clearInterval(timerInterval);
             timerInterval = null;
             btn.textContent = '▶ Start';
             btn.classList.remove('running');
+            bgStatus.classList.remove('active');
+            updateTimerDisplay();
         } else {
-            timerInterval = setInterval(() => {
-                elapsedSeconds++;
-                updateTimerDisplay();
-            }, 1000);
+            // Start: record exact current timestamp
+            timerState.startTime = Date.now();
+            timerState.isRunning = true;
+            timerState.selectedHabitId = parseInt(document.getElementById('focusHabitSelect').value) || null;
+            saveTimerState();
+
             btn.textContent = '⏸ Pause';
             btn.classList.add('running');
+            bgStatus.classList.add('active');
+            updateTimerDisplay();
+            if (!timerInterval) {
+                timerInterval = setInterval(updateTimerDisplay, 1000);
+            }
         }
     }
 
     function updateTimerDisplay() {
+        const elapsedSeconds = getElapsedSeconds();
         const hrs = String(Math.floor(elapsedSeconds / 3600)).padStart(2, '0');
         const mins = String(Math.floor((elapsedSeconds % 3600) / 60)).padStart(2, '0');
         const secs = String(elapsedSeconds % 60).padStart(2, '0');
@@ -979,11 +1074,12 @@
     }
 
     function logSession() {
-        const mins = Math.max(1, Math.round(elapsedSeconds / 60));
+        const elapsedSeconds = getElapsedSeconds();
         if (elapsedSeconds < 30) {
             alert('Run the timer for at least 30 seconds to log a session, or use the direct +/- buttons below.');
             return;
         }
+        const mins = Math.max(1, Math.round(elapsedSeconds / 60));
         const selectedId = parseInt(document.getElementById('focusHabitSelect').value);
         adjustTime(selectedId, mins);
         resetTimer();
@@ -992,11 +1088,17 @@
     function resetTimer() {
         clearInterval(timerInterval);
         timerInterval = null;
-        elapsedSeconds = 0;
+        timerState.isRunning = false;
+        timerState.startTime = null;
+        timerState.accumulatedMs = 0;
+        saveTimerState();
+
         updateTimerDisplay();
         const btn = document.getElementById('startStopBtn');
+        const bgStatus = document.getElementById('timerBgStatus');
         btn.textContent = '▶ Start';
         btn.classList.remove('running');
+        bgStatus.classList.remove('active');
     }
 
     // JSON Backup & Restore
