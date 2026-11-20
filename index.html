@@ -613,8 +613,8 @@
             <select id="focusHabitSelect" onchange="saveSelectedHabit()"></select>
         </div>
         <div class="focus-stats" id="globalProgressText">
-            0m / 17h 30m Target Covered
-            <span id="globalExtraSub">0 / 7 Habits Completed</span>
+            0m / 24h Target Covered
+            <span id="globalExtraSub">0 / 9 Habits Completed</span>
         </div>
         <div class="timer-controls">
             <div class="timer-display-wrap">
@@ -666,10 +666,10 @@
                     <div class="stat-box">
                         <div class="stat-value green" id="dailyTargetPct">0%</div>
                         <div class="stat-label">Planned Target Met</div>
-                        <div class="stat-sub" id="targetCoveredSub">0m / 17h 30m covered</div>
+                        <div class="stat-sub" id="targetCoveredSub">0m / 24h covered</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-value purple" id="habitsDoneCount">0 / 7</div>
+                        <div class="stat-value purple" id="habitsDoneCount">0 / 9</div>
                         <div class="stat-label">Targets Hit</div>
                         <div class="stat-sub">Individual goals met</div>
                     </div>
@@ -701,19 +701,21 @@
 </div>
 
 <script>
-    const STORAGE_KEY = 'habitTrackerData_v5_flexible';
+    const STORAGE_KEY = 'habitTrackerData_v5_ordered';
     const TIMER_STORAGE_KEY = 'habitTrackerTimer_v5';
-    const COLORS = ['#8b5cf6', '#3b82f6', '#ec4899', '#f59e0b', '#06b6d4', '#ef4444', '#10b981'];
+    const COLORS = ['#6366f1', '#06b6d4', '#3b82f6', '#ef4444', '#14b8a6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981'];
 
-    // Default flexible routine with 2h (120m) Travelling time — 100% editable by user
+    // Systematic daily routine order — 100% editable by user
     const DEFAULT_HABITS = [
-        { id: 1, name: 'Tuition & Coaching Classes', target: 360, logged: 0, color: '#8b5cf6' },
-        { id: 2, name: 'Self-Study / Problem Solving', target: 300, logged: 0, color: '#3b82f6' },
-        { id: 3, name: 'Travelling & Commute', target: 120, logged: 0, color: '#ec4899' },
-        { id: 4, name: 'Cooking & Meal Prep', target: 90, logged: 0, color: '#f59e0b' },
-        { id: 5, name: 'Daily Newspaper Reading', target: 60, logged: 0, color: '#06b6d4' },
-        { id: 6, name: 'Resistance Training & Fitness', target: 60, logged: 0, color: '#ef4444' },
-        { id: 7, name: 'Walking / Active Steps', target: 60, logged: 0, color: '#10b981' }
+        { id: 1, name: 'Sleep', target: 420, logged: 0, color: '#6366f1' },
+        { id: 2, name: 'Daily Newspaper Reading', target: 30, logged: 0, color: '#06b6d4' },
+        { id: 3, name: 'Self-Study / Problem Solving', target: 210, logged: 0, color: '#3b82f6' },
+        { id: 4, name: 'Resistance Training & Fitness', target: 60, logged: 0, color: '#ef4444' },
+        { id: 5, name: 'Self Care (Bath & Clothes Wash)', target: 60, logged: 0, color: '#14b8a6' },
+        { id: 6, name: 'Cooking, Meal Prep & Eating', target: 150, logged: 0, color: '#f59e0b' },
+        { id: 7, name: 'Tuition & Coaching Classes', target: 360, logged: 0, color: '#8b5cf6' },
+        { id: 8, name: 'Travelling & Commute', target: 120, logged: 0, color: '#ec4899' },
+        { id: 9, name: 'Walking / Active Steps', target: 30, logged: 0, color: '#10b981' }
     ];
 
     let habits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_HABITS));
@@ -996,7 +998,7 @@
     }
 
     function restoreDefaultSchedule() {
-        if (confirm('Restore the default 7 activities and targets?')) {
+        if (confirm('Restore the default 9 activities and targets?')) {
             habits = JSON.parse(JSON.stringify(DEFAULT_HABITS));
             saveData();
             renderAll();
