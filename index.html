@@ -58,6 +58,7 @@
             gap: 10px;
             font-size: 1.45rem;
             font-weight: 700;
+            flex-wrap: wrap;
         }
 
         .mode-pill {
@@ -68,6 +69,41 @@
             padding: 3px 10px;
             border-radius: 999px;
             font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sync-badge {
+            font-size: 0.78rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
+        }
+
+        .sync-badge.synced {
+            color: var(--accent-green);
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .sync-badge.syncing {
+            color: var(--accent-cyan);
+            border-color: rgba(6, 182, 212, 0.4);
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .sync-badge.offline {
+            color: var(--accent-orange);
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.1);
         }
 
         .date-badge {
@@ -603,7 +639,10 @@
             ⏱️ Habit & Time Analytics
             <span class="mode-pill">Flexible Control Mode</span>
         </div>
-        <div class="date-badge" id="currentDate"></div>
+        <div class="header-right">
+            <div class="sync-badge syncing" id="syncStatus">🔄 Connecting Cloud...</div>
+            <div class="date-badge" id="currentDate"></div>
+        </div>
     </header>
 
     <!-- Focus Timer Section -->
@@ -619,7 +658,7 @@
         <div class="timer-controls">
             <div class="timer-display-wrap">
                 <div class="timer-display" id="timerDisplay">00:00:00</div>
-                <div class="timer-bg-status" id="timerBgStatus">● Background Sync Active</div>
+                <div class="timer-bg-status" id="timerBgStatus">● Background & Cloud Sync Active</div>
             </div>
             <button class="btn-start" id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
             <button class="btn-log" onclick="logSession()">+ Log Session</button>
@@ -637,7 +676,7 @@
                 </div>
 
                 <div class="helper-hint">
-                    💡 <strong>Accurate & Flexible:</strong> Each activity counts toward <strong>Planned Target Met</strong> only up to its own target, and the timer uses real-time timestamps so it keeps counting accurately even when your phone screen is off.
+                    💡 <strong>Accurate & Cloud-Synced:</strong> Each activity counts toward <strong>Planned Target Met</strong> only up to its own target, and your timer & logs automatically sync across all your devices via Firebase.
                 </div>
 
                 <div class="habit-list" id="habitList"></div>
@@ -693,19 +732,46 @@
                     <button class="btn-backup" onclick="document.getElementById('importFile').click()">Import JSON</button>
                     <button class="btn-backup" onclick="restoreDefaultSchedule()">Reset Default List</button>
                     <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
-                    <span class="backup-note">Auto-saved locally</span>
+                    <span class="backup-note">Auto-synced to Firebase Cloud + Local</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
+<script type="module">
+    // Firebase Modular SDK Imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-analytics.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+    // Your Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBIyneiaKas_LgQJ-q5Oc7JHNz6Vf1E9uc",
+        authDomain: "habit-tracker-acdee.firebaseapp.com",
+        projectId: "habit-tracker-acdee",
+        storageBucket: "habit-tracker-acdee.firebasestorage.app",
+        messagingSenderId: "631008050481",
+        appId: "1:631008050481:web:80c8daa5c5726a3af44410",
+        measurementId: "G-8B1JYBEWDC"
+    };
+
+    // Initialize Firebase & Firestore
+    const app = initializeApp(firebaseConfig);
+    try {
+        getAnalytics(app);
+    } catch (e) {
+        console.warn("Analytics skipped (likely blocked by browser/adblocker):", e);
+    }
+    const db = getFirestore(app);
+    const habitsDocRef = doc(db, "habitTracker", "habits");
+    const timerDocRef = doc(db, "habitTracker", "timer");
+
+    // Local Storage Keys & Defaults
     const STORAGE_KEY = 'habitTrackerData_v5_ordered';
     const TIMER_STORAGE_KEY = 'habitTrackerTimer_v5';
     const COLORS = ['#6366f1', '#06b6d4', '#3b82f6', '#ef4444', '#14b8a6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981'];
 
-    // Systematic daily routine order — 100% editable by user
     const DEFAULT_HABITS = [
         { id: 1, name: 'Sleep', target: 420, logged: 0, color: '#6366f1' },
         { id: 2, name: 'Daily Newspaper Reading', target: 30, logged: 0, color: '#06b6d4' },
@@ -720,7 +786,6 @@
 
     let habits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_HABITS));
 
-    // Background-safe Timestamp Timer State
     let timerState = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY)) || {
         isRunning: false,
         startTime: null,
@@ -730,11 +795,27 @@
 
     let timerInterval = null;
 
+    function setSyncStatus(state, text) {
+        const el = document.getElementById('syncStatus');
+        if (!el) return;
+        el.className = `sync-badge ${state}`;
+        el.textContent = text;
+    }
+
+    function escapeAttr(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     function init() {
         const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+
+        // Render immediately from local cache
         renderAll();
         restoreTimerState();
+
+        // Start real-time Firebase Cloud listeners
+        startCloudSync();
 
         // Instantly resync timer whenever screen turns back on or tab becomes active
         document.addEventListener('visibilitychange', () => {
@@ -746,12 +827,77 @@
         window.addEventListener('pageshow', updateTimerDisplay);
     }
 
-    function saveData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+    function startCloudSync() {
+        // Real-time listener for Habits
+        onSnapshot(habitsDocRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                if (Array.isArray(data.items)) {
+                    if (JSON.stringify(data.items) !== JSON.stringify(habits)) {
+                        habits = data.items;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+                        renderAll();
+                    }
+                }
+                setSyncStatus('synced', '☁️ Cloud Synced');
+            } else {
+                // First time setup: push current local habits to Firestore
+                saveData();
+            }
+        }, (error) => {
+            console.error("Firestore habits sync error:", error);
+            setSyncStatus('offline', '⚠️ Offline (Local Only)');
+        });
+
+        // Real-time listener for Timer
+        onSnapshot(timerDocRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                const incoming = {
+                    isRunning: !!data.isRunning,
+                    startTime: data.startTime || null,
+                    accumulatedMs: data.accumulatedMs || 0,
+                    selectedHabitId: data.selectedHabitId || null
+                };
+                if (JSON.stringify(incoming) !== JSON.stringify(timerState)) {
+                    timerState = incoming;
+                    localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
+                    renderSelect();
+                    restoreTimerState();
+                }
+            } else {
+                saveTimerState();
+            }
+        }, (error) => {
+            console.error("Firestore timer sync error:", error);
+        });
     }
 
-    function saveTimerState() {
+    async function saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+        setSyncStatus('syncing', '🔄 Syncing...');
+        try {
+            await setDoc(habitsDocRef, {
+                items: habits,
+                updatedAt: Date.now()
+            });
+            setSyncStatus('synced', '☁️ Cloud Synced');
+        } catch (error) {
+            console.error("Error saving habits to cloud:", error);
+            setSyncStatus('offline', '⚠️ Offline (Saved Locally)');
+        }
+    }
+
+    async function saveTimerState() {
         localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
+        try {
+            await setDoc(timerDocRef, {
+                ...timerState,
+                updatedAt: Date.now()
+            });
+        } catch (error) {
+            console.error("Error saving timer to cloud:", error);
+        }
     }
 
     function saveSelectedHabit() {
@@ -780,7 +926,7 @@
         const currentVal = timerState.selectedHabitId || select.value;
         select.innerHTML = habits.map(h => {
             const targetLabel = h.target > 0 ? `Target: ${formatDuration(h.target)}` : 'Flexible / Open';
-            return `<option value="${h.id}">${h.name} (${targetLabel})</option>`;
+            return `<option value="${h.id}">${escapeAttr(h.name)} (${targetLabel})</option>`;
         }).join('');
         if (currentVal && habits.some(h => h.id == currentVal)) {
             select.value = currentVal;
@@ -802,7 +948,7 @@
                     <div class="habit-top">
                         <div class="habit-name-wrap">
                             <span class="dot" style="background-color: ${h.color}"></span>
-                            <input type="text" class="habit-name-input" value="${h.name}" 
+                            <input type="text" class="habit-name-input" value="${escapeAttr(h.name)}" 
                                 onchange="renameHabit(${h.id}, this.value)" title="Click to rename">
                         </div>
                         <div class="habit-progress-text">
@@ -854,7 +1000,6 @@
         const targetedHabits = habits.filter(h => h.target > 0);
         const totalTarget = targetedHabits.reduce((sum, h) => sum + h.target, 0);
 
-        // Cap each habit's contribution at its own target so one habit cannot fake 100% completion for the rest
         const effectiveTargetCovered = targetedHabits.reduce((sum, h) => sum + Math.min(h.logged, h.target), 0);
         const totalExtraMins = targetedHabits.reduce((sum, h) => sum + Math.max(0, h.logged - h.target), 0);
         const completedHabitsCount = targetedHabits.filter(h => h.logged >= h.target).length;
@@ -890,7 +1035,7 @@
             stackedBar.innerHTML = habits.map(h => {
                 if (h.logged === 0) return '';
                 const share = (h.logged / totalLogged) * 100;
-                return `<div class="stacked-segment" style="width: ${share}%; background-color: ${h.color}" title="${h.name}: ${formatDuration(h.logged)} (${Math.round(share)}%)"></div>`;
+                return `<div class="stacked-segment" style="width: ${share}%; background-color: ${h.color}" title="${escapeAttr(h.name)}: ${formatDuration(h.logged)} (${Math.round(share)}%)"></div>`;
             }).join('');
         }
 
@@ -905,7 +1050,7 @@
                 <div class="breakdown-item">
                     <div class="breakdown-left">
                         <span class="dot" style="background-color: ${h.color}"></span>
-                        <span>${h.name}</span>
+                        <span>${escapeAttr(h.name)}</span>
                     </div>
                     <div class="breakdown-right">
                         <div>
@@ -926,8 +1071,8 @@
         const habit = habits.find(h => h.id === id);
         if (habit) {
             habit.logged = Math.max(0, habit.logged + mins);
-            saveData();
             renderAll();
+            saveData();
         }
     }
 
@@ -935,8 +1080,8 @@
         const habit = habits.find(h => h.id === id);
         if (habit) {
             habit.logged = Math.max(0, parseInt(val) || 0);
-            saveData();
             renderAll();
+            saveData();
         }
     }
 
@@ -944,8 +1089,8 @@
         const habit = habits.find(h => h.id === id);
         if (habit) {
             habit.target = Math.max(0, parseInt(val) || 0);
-            saveData();
             renderAll();
+            saveData();
         }
     }
 
@@ -954,8 +1099,8 @@
         const trimmed = newName.trim();
         if (habit && trimmed) {
             habit.name = trimmed;
-            saveData();
             renderAll();
+            saveData();
         }
     }
 
@@ -977,35 +1122,35 @@
         });
 
         nameInput.value = '';
-        saveData();
         renderAll();
+        saveData();
     }
 
     function deleteHabit(id) {
         if (confirm('Remove this activity from your list?')) {
             habits = habits.filter(h => h.id !== id);
-            saveData();
             renderAll();
+            saveData();
         }
     }
 
     function newDayReset() {
         if (confirm('Start fresh for a new day? (Your custom targets and habit names will stay saved)')) {
             habits.forEach(h => h.logged = 0);
-            saveData();
             renderAll();
+            saveData();
         }
     }
 
     function restoreDefaultSchedule() {
         if (confirm('Restore the default 9 activities and targets?')) {
             habits = JSON.parse(JSON.stringify(DEFAULT_HABITS));
-            saveData();
             renderAll();
+            saveData();
         }
     }
 
-    // Background-Safe Timestamp Stopwatch Logic
+    // Background-Safe & Cloud-Synced Timestamp Stopwatch Logic
     function getElapsedSeconds() {
         let totalMs = timerState.accumulatedMs || 0;
         if (timerState.isRunning && timerState.startTime) {
@@ -1027,6 +1172,8 @@
                 timerInterval = setInterval(updateTimerDisplay, 1000);
             }
         } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
             btn.textContent = '▶ Start';
             btn.classList.remove('running');
             bgStatus.classList.remove('active');
@@ -1038,7 +1185,6 @@
         const bgStatus = document.getElementById('timerBgStatus');
 
         if (timerState.isRunning) {
-            // Pause: lock in elapsed milliseconds up to this exact moment
             timerState.accumulatedMs += (Date.now() - timerState.startTime);
             timerState.startTime = null;
             timerState.isRunning = false;
@@ -1051,7 +1197,6 @@
             bgStatus.classList.remove('active');
             updateTimerDisplay();
         } else {
-            // Start: record exact current timestamp
             timerState.startTime = Date.now();
             timerState.isRunning = true;
             timerState.selectedHabitId = parseInt(document.getElementById('focusHabitSelect').value) || null;
@@ -1123,9 +1268,9 @@
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
                     habits = imported;
-                    saveData();
                     renderAll();
-                    alert('Backup imported successfully!');
+                    saveData();
+                    alert('Backup imported & synced to cloud successfully!');
                 }
             } catch (err) {
                 alert('Invalid JSON file.');
@@ -1133,6 +1278,22 @@
         };
         reader.readAsText(file);
     }
+
+    // Expose functions globally for inline HTML event handlers (required for ES modules)
+    window.saveSelectedHabit = saveSelectedHabit;
+    window.toggleTimer = toggleTimer;
+    window.logSession = logSession;
+    window.resetTimer = resetTimer;
+    window.newDayReset = newDayReset;
+    window.addNewHabit = addNewHabit;
+    window.exportData = exportData;
+    window.importData = importData;
+    window.restoreDefaultSchedule = restoreDefaultSchedule;
+    window.renameHabit = renameHabit;
+    window.adjustTime = adjustTime;
+    window.setExactLogged = setExactLogged;
+    window.setExactTarget = setExactTarget;
+    window.deleteHabit = deleteHabit;
 
     init();
 </script>
