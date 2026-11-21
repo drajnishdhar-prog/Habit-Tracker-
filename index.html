@@ -9,7 +9,9 @@
             --bg-main: #0f172a;
             --bg-card: #1e293b;
             --bg-item: #151e32;
+            --bg-hint: rgba(15, 23, 42, 0.5);
             --border-color: #334155;
+            --border-subtle: rgba(51, 65, 85, 0.5);
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --accent-blue: #3b82f6;
@@ -19,6 +21,30 @@
             --accent-purple: #8b5cf6;
             --accent-orange: #f59e0b;
             --accent-cyan: #06b6d4;
+        }
+
+        /* OLED Battery-Saver Theme */
+        [data-theme="oled"] {
+            --bg-main: #000000;
+            --bg-card: #09090b;
+            --bg-item: #111114;
+            --bg-hint: rgba(18, 18, 22, 0.9);
+            --border-color: #27272a;
+            --border-subtle: rgba(39, 39, 42, 0.6);
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+        }
+
+        /* Clean Light Theme */
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-item: #f8fafc;
+            --bg-hint: rgba(241, 245, 249, 0.9);
+            --border-color: #cbd5e1;
+            --border-subtle: rgba(203, 213, 225, 0.7);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
         }
 
         * {
@@ -33,11 +59,16 @@
             color: var(--text-primary);
             padding: 20px;
             line-height: 1.5;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .container {
             max-width: 1240px;
             margin: 0 auto;
+        }
+
+        .hidden-view {
+            display: none !important;
         }
 
         /* Header */
@@ -74,8 +105,31 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
+        }
+
+        .header-action-btn {
+            font-size: 0.8rem;
+            padding: 6px 11px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .header-action-btn:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .header-action-btn.active-alert {
+            color: var(--accent-green);
+            border-color: rgba(16, 185, 129, 0.45);
+            background: rgba(16, 185, 129, 0.1);
         }
 
         .sync-badge {
@@ -111,7 +165,7 @@
             border: 1px solid var(--border-color);
             padding: 6px 14px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: var(--text-secondary);
         }
 
@@ -280,7 +334,7 @@
             font-size: 0.78rem;
             color: var(--text-secondary);
             margin-bottom: 14px;
-            background: rgba(15, 23, 42, 0.5);
+            background: var(--bg-hint);
             padding: 8px 12px;
             border-radius: 8px;
             border: 1px dashed var(--border-color);
@@ -414,7 +468,7 @@
         }
 
         .btn-minus {
-            color: #fca5a5;
+            color: #ef4444;
         }
 
         .btn-zero {
@@ -521,6 +575,7 @@
         .stat-value.blue { color: #60a5fa; }
         .stat-value.green { color: var(--accent-green); }
         .stat-value.purple { color: #c084fc; }
+        .stat-value.cyan { color: var(--accent-cyan); }
 
         .stat-label {
             font-size: 0.74rem;
@@ -570,7 +625,7 @@
             align-items: center;
             font-size: 0.9rem;
             padding-bottom: 10px;
-            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .breakdown-item:last-child { border-bottom: none; }
@@ -629,6 +684,179 @@
             color: var(--text-secondary);
             margin-left: auto;
         }
+
+        /* Dedicated Analytics Page */
+        .analytics-page-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            font-size: 0.88rem;
+            border-radius: 8px;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .range-tabs {
+            display: inline-flex;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .range-tab {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 7px 14px;
+            border-radius: 7px;
+            font-size: 0.84rem;
+        }
+
+        .range-tab.active {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+        }
+
+        .analytics-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 780px) {
+            .analytics-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .chart-container {
+            width: 100%;
+            overflow-x: auto;
+            padding-top: 6px;
+        }
+
+        .bar-chart-grid {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 210px;
+            padding: 20px 6px 8px 6px;
+            border-bottom: 1px solid var(--border-color);
+            min-width: 300px;
+        }
+
+        .bar-col {
+            flex: 1;
+            min-width: 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bar-val-top {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .bar-track {
+            width: 100%;
+            max-width: 42px;
+            height: 150px;
+            background-color: var(--bg-item);
+            border-radius: 6px 6px 3px 3px;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.35s ease;
+            min-height: 2px;
+        }
+
+        .bar-label-bottom {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 68px;
+        }
+
+        .habit-bar-row {
+            margin-bottom: 14px;
+        }
+
+        .habit-bar-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .habit-bar-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.88rem;
+            margin-bottom: 6px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .habit-bar-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-chart-msg {
+            text-align: center;
+            padding: 36px 16px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Subtle Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--accent-green);
+            padding: 12px 16px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            font-size: 0.86rem;
+            font-weight: 600;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            max-width: 320px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -640,104 +868,164 @@
             <span class="mode-pill">Flexible Control Mode</span>
         </div>
         <div class="header-right">
+            <button class="header-action-btn" id="analyticsNavBtn" onclick="openAnalytics()" title="Open Daily, Weekly & Monthly Charts">📈 Analytics</button>
+            <button class="header-action-btn" id="notifToggleBtn" onclick="toggleNotifications()" title="Toggle Goal Achievement Alerts">🔕 Alerts Off</button>
+            <button class="header-action-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Dark / OLED / Light Theme">🌙 Dark</button>
             <div class="sync-badge syncing" id="syncStatus">🔄 Connecting Cloud...</div>
             <div class="date-badge" id="currentDate"></div>
         </div>
     </header>
 
-    <!-- Focus Timer Section -->
-    <div class="focus-bar">
-        <div class="focus-selector">
-            <div class="focus-label">🎯 Active Focus / Activity Selector</div>
-            <select id="focusHabitSelect" onchange="saveSelectedHabit()"></select>
-        </div>
-        <div class="focus-stats" id="globalProgressText">
-            0m / 24h Target Covered
-            <span id="globalExtraSub">0 / 9 Habits Completed</span>
-        </div>
-        <div class="timer-controls">
-            <div class="timer-display-wrap">
-                <div class="timer-display" id="timerDisplay">00:00:00</div>
-                <div class="timer-bg-status" id="timerBgStatus">● Background & Cloud Sync Active</div>
+    <!-- MAIN DASHBOARD VIEW (Unchanged clean layout) -->
+    <div id="dashboardView">
+        <!-- Focus Timer Section -->
+        <div class="focus-bar">
+            <div class="focus-selector">
+                <div class="focus-label">🎯 Active Focus / Activity Selector</div>
+                <select id="focusHabitSelect" onchange="saveSelectedHabit()"></select>
             </div>
-            <button class="btn-start" id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
-            <button class="btn-log" onclick="logSession()">+ Log Session</button>
-            <button class="btn-reset" onclick="resetTimer()">Reset</button>
+            <div class="focus-stats" id="globalProgressText">
+                0m / 24h Target Covered
+                <span id="globalExtraSub">0 / 9 Habits Completed</span>
+            </div>
+            <div class="timer-controls">
+                <div class="timer-display-wrap">
+                    <div class="timer-display" id="timerDisplay">00:00:00</div>
+                    <div class="timer-bg-status" id="timerBgStatus">● Background & Cloud Sync Active</div>
+                </div>
+                <button class="btn-start" id="startStopBtn" onclick="toggleTimer()">▶ Start</button>
+                <button class="btn-log" onclick="logSession()">+ Log Session</button>
+                <button class="btn-reset" onclick="resetTimer()">Reset</button>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Column: Flexible Daily Habits -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📋 Flexible Daily Log & Customizer</div>
+                        <button class="btn-new-day" onclick="newDayReset()">New Day Reset (All 0m)</button>
+                    </div>
+
+                    <div class="helper-hint">
+                        💡 <strong>Accurate & Cloud-Synced:</strong> Each activity counts toward <strong>Planned Target Met</strong> only up to its own target, and your timer & logs automatically sync across all your devices via Firebase (with offline cache).
+                    </div>
+
+                    <div class="habit-list" id="habitList"></div>
+
+                    <div class="add-habit-form">
+                        <input type="text" id="newHabitName" placeholder="Add custom activity (e.g., Rest, Revision)...">
+                        <input type="number" id="newHabitTarget" value="60" min="0" step="5" title="Target minutes (0 = Open mode)">
+                        <button class="btn-add" onclick="addNewHabit()">+ Add Activity</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Analytics & Backup -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 Actual Time Spent Analysis</div>
+                    </div>
+
+                    <div class="analytics-summary">
+                        <div class="stat-box">
+                            <div class="stat-value blue" id="totalLoggedDisplay">0m</div>
+                            <div class="stat-label">Total Logged Today</div>
+                            <div class="stat-sub" id="extraLoggedSub">Includes all extra time</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value green" id="dailyTargetPct">0%</div>
+                            <div class="stat-label">Planned Target Met</div>
+                            <div class="stat-sub" id="targetCoveredSub">0m / 24h covered</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value purple" id="habitsDoneCount">0 / 9</div>
+                            <div class="stat-label">Targets Hit</div>
+                            <div class="stat-sub">Individual goals met</div>
+                        </div>
+                    </div>
+
+                    <div class="stacked-bar-label">
+                        <span>Actual Time Share Distribution</span>
+                        <span id="untrackedDayText">24h free today</span>
+                    </div>
+                    <div class="stacked-bar" id="stackedBar"></div>
+
+                    <div class="breakdown-list" id="breakdownList"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">💾 Data Backup & Default Restore</div>
+                    </div>
+                    <div class="backup-actions">
+                        <button class="btn-backup" onclick="exportData()">Export JSON</button>
+                        <button class="btn-backup" onclick="exportCSV()">Export CSV</button>
+                        <button class="btn-backup" onclick="document.getElementById('importFile').click()">Import JSON</button>
+                        <button class="btn-backup" onclick="restoreDefaultSchedule()">Reset Default List</button>
+                        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+                        <span class="backup-note">Auto-synced to Firebase Cloud + Local</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="main-grid">
-        <!-- Left Column: Flexible Daily Habits -->
-        <div>
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📋 Flexible Daily Log & Customizer</div>
-                    <button class="btn-new-day" onclick="newDayReset()">New Day Reset (All 0m)</button>
-                </div>
-
-                <div class="helper-hint">
-                    💡 <strong>Accurate & Cloud-Synced:</strong> Each activity counts toward <strong>Planned Target Met</strong> only up to its own target, and your timer & logs automatically sync across all your devices via Firebase.
-                </div>
-
-                <div class="habit-list" id="habitList"></div>
-
-                <div class="add-habit-form">
-                    <input type="text" id="newHabitName" placeholder="Add custom activity (e.g., Rest, Revision)...">
-                    <input type="number" id="newHabitTarget" value="60" min="0" step="5" title="Target minutes (0 = Open mode)">
-                    <button class="btn-add" onclick="addNewHabit()">+ Add Activity</button>
-                </div>
+    <!-- DEDICATED ANALYTICS PAGE (Separate View) -->
+    <div id="analyticsView" class="hidden-view">
+        <div class="analytics-page-bar">
+            <button class="btn-back" onclick="closeAnalytics()">← Back to Dashboard</button>
+            <div class="range-tabs">
+                <button class="range-tab active" id="tabDaily" onclick="setAnalyticsRange('daily')">Daily</button>
+                <button class="range-tab" id="tabWeekly" onclick="setAnalyticsRange('weekly')">Weekly (7d)</button>
+                <button class="range-tab" id="tabMonthly" onclick="setAnalyticsRange('monthly')">Monthly (30d)</button>
             </div>
         </div>
 
-        <!-- Right Column: Analytics & Backup -->
-        <div>
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📊 Actual Time Spent Analysis</div>
-                </div>
-
-                <div class="analytics-summary">
-                    <div class="stat-box">
-                        <div class="stat-value blue" id="totalLoggedDisplay">0m</div>
-                        <div class="stat-label">Total Logged Today</div>
-                        <div class="stat-sub" id="extraLoggedSub">Includes all extra time</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value green" id="dailyTargetPct">0%</div>
-                        <div class="stat-label">Planned Target Met</div>
-                        <div class="stat-sub" id="targetCoveredSub">0m / 24h covered</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value purple" id="habitsDoneCount">0 / 9</div>
-                        <div class="stat-label">Targets Hit</div>
-                        <div class="stat-sub">Individual goals met</div>
-                    </div>
-                </div>
-
-                <div class="stacked-bar-label">
-                    <span>Actual Time Share Distribution</span>
-                    <span id="untrackedDayText">24h free today</span>
-                </div>
-                <div class="stacked-bar" id="stackedBar"></div>
-
-                <div class="breakdown-list" id="breakdownList"></div>
+        <div class="analytics-kpi-grid">
+            <div class="stat-box">
+                <div class="stat-value blue" id="apTotalTime">0m</div>
+                <div class="stat-label">Total Time Logged</div>
+                <div class="stat-sub" id="apTotalSub">Selected period</div>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">💾 Data Backup & Default Restore</div>
-                </div>
-                <div class="backup-actions">
-                    <button class="btn-backup" onclick="exportData()">Export JSON</button>
-                    <button class="btn-backup" onclick="document.getElementById('importFile').click()">Import JSON</button>
-                    <button class="btn-backup" onclick="restoreDefaultSchedule()">Reset Default List</button>
-                    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
-                    <span class="backup-note">Auto-synced to Firebase Cloud + Local</span>
-                </div>
+            <div class="stat-box">
+                <div class="stat-value cyan" id="apAvgTime">0m</div>
+                <div class="stat-label">Daily Average</div>
+                <div class="stat-sub" id="apAvgSub">Active logged days</div>
             </div>
+            <div class="stat-box">
+                <div class="stat-value green" id="apConsistency">0%</div>
+                <div class="stat-label">Target Completion</div>
+                <div class="stat-sub" id="apConsistencySub">Planned time covered</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value purple" id="apTrackedDays">0</div>
+                <div class="stat-label">Days Tracked</div>
+                <div class="stat-sub" id="apBestDaySub">History auto-saved</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title" id="apChartTitle">📊 Time Distribution Chart</div>
+                <span style="font-size:0.78rem; color:var(--text-secondary);" id="apChartSubtitle"></span>
+            </div>
+            <div class="chart-container" id="apBarChart"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🧩 Habit-Wise Breakdown</div>
+                <span style="font-size:0.78rem; color:var(--text-secondary);" id="apBreakdownSubtitle">Total time & share</span>
+            </div>
+            <div id="apHabitBreakdown"></div>
         </div>
     </div>
 </div>
+
+<div class="toast" id="toastEl"></div>
 
 <script type="module">
     // Firebase Modular SDK Imports
@@ -766,10 +1054,18 @@
     const db = getFirestore(app);
     const habitsDocRef = doc(db, "habitTracker", "habits");
     const timerDocRef = doc(db, "habitTracker", "timer");
+    const historyDocRef = doc(db, "habitTracker", "history");
 
     // Local Storage Keys & Defaults
     const STORAGE_KEY = 'habitTrackerData_v5_ordered';
     const TIMER_STORAGE_KEY = 'habitTrackerTimer_v5';
+    const HISTORY_STORAGE_KEY = 'habitTrackerHistory_v1';
+    const THEME_STORAGE_KEY = 'habitTrackerTheme_v1';
+    const NOTIF_STORAGE_KEY = 'habitTrackerNotif_v1';
+    const NOTIFIED_TODAY_KEY = 'habitTrackerNotifiedToday_v1';
+    const PENDING_SYNC_KEY = 'habitTrackerPendingSync_v1';
+    const LAST_DATE_KEY = 'habitTrackerLastDate_v1';
+
     const COLORS = ['#6366f1', '#06b6d4', '#3b82f6', '#ef4444', '#14b8a6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981'];
 
     const DEFAULT_HABITS = [
@@ -785,15 +1081,31 @@
     ];
 
     let habits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_HABITS));
-
+    let historyData = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY)) || {};
     let timerState = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY)) || {
         isRunning: false,
         startTime: null,
         accumulatedMs: 0,
         selectedHabitId: null
     };
+    let pendingSync = JSON.parse(localStorage.getItem(PENDING_SYNC_KEY)) || {
+        habits: false,
+        timer: false,
+        history: false
+    };
 
+    let currentTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
+    let notificationsEnabled = localStorage.getItem(NOTIF_STORAGE_KEY) === 'true';
+    let activeAnalyticsRange = 'daily';
     let timerInterval = null;
+    let toastTimeout = null;
+
+    function getLocalDateKey(date = new Date()) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
 
     function setSyncStatus(state, text) {
         const el = document.getElementById('syncStatus');
@@ -802,13 +1114,185 @@
         el.textContent = text;
     }
 
+    function showToast(msg) {
+        const el = document.getElementById('toastEl');
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => el.classList.remove('show'), 3200);
+    }
+
     function escapeAttr(str) {
         return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
+    function savePendingFlags() {
+        localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(pendingSync));
+    }
+
+    // Theme Handling (Dark / OLED Battery Saver / Light)
+    function applyTheme(theme) {
+        currentTheme = theme;
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+        document.documentElement.setAttribute('data-theme', theme);
+        const btn = document.getElementById('themeToggleBtn');
+        if (!btn) return;
+        if (theme === 'oled') btn.textContent = '🔋 OLED';
+        else if (theme === 'light') btn.textContent = '☀️ Light';
+        else btn.textContent = '🌙 Dark';
+    }
+
+    function toggleTheme() {
+        const order = ['dark', 'oled', 'light'];
+        const next = order[(order.indexOf(currentTheme) + 1) % order.length];
+        applyTheme(next);
+        showToast(next === 'oled' ? 'OLED Black mode enabled (saves battery)' : `Theme switched to ${next.toUpperCase()}`);
+    }
+
+    // Push Notifications Handling
+    function updateNotifButton() {
+        const btn = document.getElementById('notifToggleBtn');
+        if (!btn) return;
+        if (notificationsEnabled) {
+            btn.textContent = '🔔 Alerts On';
+            btn.classList.add('active-alert');
+        } else {
+            btn.textContent = '🔕 Alerts Off';
+            btn.classList.remove('active-alert');
+        }
+    }
+
+    async function toggleNotifications() {
+        if (!notificationsEnabled) {
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    const perm = await Notification.requestPermission();
+                    if (perm !== 'granted') {
+                        showToast('Browser blocked system alerts. In-app alerts enabled.');
+                    }
+                }
+            }
+            notificationsEnabled = true;
+            localStorage.setItem(NOTIF_STORAGE_KEY, 'true');
+            updateNotifButton();
+            showToast('Goal achievement alerts turned ON');
+        } else {
+            notificationsEnabled = false;
+            localStorage.setItem(NOTIF_STORAGE_KEY, 'false');
+            updateNotifButton();
+            showToast('Goal achievement alerts turned OFF');
+        }
+    }
+
+    function getNotifiedToday() {
+        const today = getLocalDateKey();
+        const saved = JSON.parse(localStorage.getItem(NOTIFIED_TODAY_KEY)) || { date: today, habitIds: [], allDone: false };
+        if (saved.date !== today) {
+            return { date: today, habitIds: [], allDone: false };
+        }
+        return saved;
+    }
+
+    function sendGoalAlert(title, body) {
+        if (!notificationsEnabled) return;
+        showToast(`${title} — ${body}`);
+
+        if ('vibrate' in navigator) {
+            try { navigator.vibrate([120, 60, 120]); } catch (e) {}
+        }
+
+        if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+                new Notification(title, {
+                    body,
+                    tag: title,
+                    silent: false
+                });
+            } catch (e) {
+                console.warn('Notification dispatch skipped:', e);
+            }
+        }
+    }
+
+    function checkGoalNotifications(updatedHabit, prevLogged) {
+        if (!notificationsEnabled || !updatedHabit) return;
+        const state = getNotifiedToday();
+        let changed = false;
+
+        if (updatedHabit.target > 0 && prevLogged < updatedHabit.target && updatedHabit.logged >= updatedHabit.target) {
+            if (!state.habitIds.includes(updatedHabit.id)) {
+                state.habitIds.push(updatedHabit.id);
+                changed = true;
+                sendGoalAlert(
+                    `🎯 Target Hit: ${updatedHabit.name}`,
+                    `${formatDuration(updatedHabit.logged)} / ${formatDuration(updatedHabit.target)} completed today.`
+                );
+            }
+        }
+
+        const targeted = habits.filter(h => h.target > 0);
+        if (targeted.length > 0 && targeted.every(h => h.logged >= h.target) && !state.allDone) {
+            state.allDone = true;
+            changed = true;
+            sendGoalAlert(
+                '🏆 All Daily Targets Completed!',
+                `You met all ${targeted.length} planned habit targets today.`
+            );
+        }
+
+        if (changed) {
+            localStorage.setItem(NOTIFIED_TODAY_KEY, JSON.stringify(state));
+        }
+    }
+
+    // History Snapshot Management
+    function buildDaySnapshot(habitList) {
+        const totalLogged = habitList.reduce((sum, h) => sum + (h.logged || 0), 0);
+        const targetedHabits = habitList.filter(h => h.target > 0);
+        const totalTarget = targetedHabits.reduce((sum, h) => sum + h.target, 0);
+        const effectiveCovered = targetedHabits.reduce((sum, h) => sum + Math.min(h.logged || 0, h.target), 0);
+        const targetsHit = targetedHabits.filter(h => (h.logged || 0) >= h.target).length;
+
+        const habitMap = {};
+        habitList.forEach(h => {
+            habitMap[String(h.id)] = {
+                name: h.name,
+                logged: h.logged || 0,
+                target: h.target || 0,
+                color: h.color || '#3b82f6'
+            };
+        });
+
+        return {
+            totalLogged,
+            totalTarget,
+            effectiveCovered,
+            targetsHit,
+            totalTargeted: targetedHabits.length,
+            habits: habitMap,
+            updatedAt: Date.now()
+        };
+    }
+
+    function updateHistoryForDate(dateKey) {
+        historyData[dateKey] = buildDaySnapshot(habits);
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
+        localStorage.setItem(LAST_DATE_KEY, dateKey);
+    }
+
     function init() {
+        applyTheme(currentTheme);
+        updateNotifButton();
+
         const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+
+        // Ensure today's baseline exists in local history if habits already have logged time
+        const todayKey = getLocalDateKey();
+        if (!historyData[todayKey] && habits.some(h => h.logged > 0)) {
+            updateHistoryForDate(todayKey);
+        }
 
         // Render immediately from local cache
         renderAll();
@@ -817,19 +1301,65 @@
         // Start real-time Firebase Cloud listeners
         startCloudSync();
 
-        // Instantly resync timer whenever screen turns back on or tab becomes active
+        // Flush any offline edits automatically when connection returns
+        window.addEventListener('online', () => {
+            flushPendingSync();
+        });
+        window.addEventListener('offline', () => {
+            setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
+        });
+
+        // Battery-safe timer handling: pause interval ticks when tab/screen is hidden, resync on wake
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
+            if (document.hidden) {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            } else {
                 updateTimerDisplay();
+                if (timerState.isRunning && !timerInterval) {
+                    timerInterval = setInterval(updateTimerDisplay, 1000);
+                }
             }
         });
         window.addEventListener('focus', updateTimerDisplay);
         window.addEventListener('pageshow', updateTimerDisplay);
     }
 
+    async function flushPendingSync() {
+        if (!navigator.onLine) return;
+        if (!pendingSync.habits && !pendingSync.timer && !pendingSync.history) return;
+
+        setSyncStatus('syncing', '🔄 Syncing Offline Changes...');
+        try {
+            if (pendingSync.habits) {
+                await setDoc(habitsDocRef, { items: habits, updatedAt: Date.now() });
+                pendingSync.habits = false;
+            }
+            if (pendingSync.history) {
+                await setDoc(historyDocRef, { days: historyData, updatedAt: Date.now() });
+                pendingSync.history = false;
+            }
+            if (pendingSync.timer) {
+                await setDoc(timerDocRef, { ...timerState, updatedAt: Date.now() });
+                pendingSync.timer = false;
+            }
+            savePendingFlags();
+            setSyncStatus('synced', '☁️ Cloud Synced');
+        } catch (err) {
+            console.error('Offline flush failed:', err);
+            setSyncStatus('offline', '⚠️ Offline (Saved Locally)');
+        }
+    }
+
     function startCloudSync() {
         // Real-time listener for Habits
         onSnapshot(habitsDocRef, (snapshot) => {
+            if (pendingSync.habits) {
+                flushPendingSync();
+                return;
+            }
             if (snapshot.exists()) {
                 const data = snapshot.data();
                 if (Array.isArray(data.items)) {
@@ -841,16 +1371,45 @@
                 }
                 setSyncStatus('synced', '☁️ Cloud Synced');
             } else {
-                // First time setup: push current local habits to Firestore
                 saveData();
             }
         }, (error) => {
             console.error("Firestore habits sync error:", error);
-            setSyncStatus('offline', '⚠️ Offline (Local Only)');
+            setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
+        });
+
+        // Real-time listener for History (Daily / Weekly / Monthly)
+        onSnapshot(historyDocRef, (snapshot) => {
+            if (pendingSync.history) {
+                flushPendingSync();
+                return;
+            }
+            if (snapshot.exists()) {
+                const data = snapshot.data();
+                if (data.days && typeof data.days === 'object') {
+                    // Merge cloud history with any local-only days so nothing is lost
+                    const merged = { ...historyData, ...data.days };
+                    if (JSON.stringify(merged) !== JSON.stringify(historyData)) {
+                        historyData = merged;
+                        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
+                        if (!document.getElementById('analyticsView').classList.contains('hidden-view')) {
+                            renderAnalyticsPage();
+                        }
+                    }
+                }
+            } else if (Object.keys(historyData).length > 0) {
+                saveHistoryToCloud();
+            }
+        }, (error) => {
+            console.error("Firestore history sync error:", error);
         });
 
         // Real-time listener for Timer
         onSnapshot(timerDocRef, (snapshot) => {
+            if (pendingSync.timer) {
+                flushPendingSync();
+                return;
+            }
             if (snapshot.exists()) {
                 const data = snapshot.data();
                 const incoming = {
@@ -873,29 +1432,76 @@
         });
     }
 
-    async function saveData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
-        setSyncStatus('syncing', '🔄 Syncing...');
+    async function saveHistoryToCloud() {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
+        if (!navigator.onLine) {
+            pendingSync.history = true;
+            savePendingFlags();
+            return;
+        }
         try {
-            await setDoc(habitsDocRef, {
-                items: habits,
+            await setDoc(historyDocRef, {
+                days: historyData,
                 updatedAt: Date.now()
             });
+            pendingSync.history = false;
+            savePendingFlags();
+        } catch (error) {
+            pendingSync.history = true;
+            savePendingFlags();
+            console.error("Error saving history to cloud:", error);
+        }
+    }
+
+    async function saveData(dateKeyOverride = null) {
+        const targetDateKey = dateKeyOverride || getLocalDateKey();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+        updateHistoryForDate(targetDateKey);
+
+        if (!navigator.onLine) {
+            pendingSync.habits = true;
+            pendingSync.history = true;
+            savePendingFlags();
+            setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
+            return;
+        }
+
+        setSyncStatus('syncing', '🔄 Syncing...');
+        try {
+            await Promise.all([
+                setDoc(habitsDocRef, { items: habits, updatedAt: Date.now() }),
+                setDoc(historyDocRef, { days: historyData, updatedAt: Date.now() })
+            ]);
+            pendingSync.habits = false;
+            pendingSync.history = false;
+            savePendingFlags();
             setSyncStatus('synced', '☁️ Cloud Synced');
         } catch (error) {
             console.error("Error saving habits to cloud:", error);
+            pendingSync.habits = true;
+            pendingSync.history = true;
+            savePendingFlags();
             setSyncStatus('offline', '⚠️ Offline (Saved Locally)');
         }
     }
 
     async function saveTimerState() {
         localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
+        if (!navigator.onLine) {
+            pendingSync.timer = true;
+            savePendingFlags();
+            return;
+        }
         try {
             await setDoc(timerDocRef, {
                 ...timerState,
                 updatedAt: Date.now()
             });
+            pendingSync.timer = false;
+            savePendingFlags();
         } catch (error) {
+            pendingSync.timer = true;
+            savePendingFlags();
             console.error("Error saving timer to cloud:", error);
         }
     }
@@ -908,8 +1514,9 @@
 
     function formatDuration(mins) {
         if (!mins || mins <= 0) return '0m';
-        const h = Math.floor(mins / 60);
-        const m = mins % 60;
+        const rounded = Math.round(mins);
+        const h = Math.floor(rounded / 60);
+        const m = rounded % 60;
         if (h > 0 && m > 0) return `${h}h ${m}m`;
         if (h > 0) return `${h}h`;
         return `${m}m`;
@@ -919,6 +1526,9 @@
         renderSelect();
         renderHabits();
         renderAnalytics();
+        if (!document.getElementById('analyticsView').classList.contains('hidden-view')) {
+            renderAnalyticsPage();
+        }
     }
 
     function renderSelect() {
@@ -1066,22 +1676,236 @@
         }).join('');
     }
 
+    // Separate Analytics Page Logic (Daily / Weekly / Monthly)
+    function openAnalytics() {
+        document.getElementById('dashboardView').classList.add('hidden-view');
+        document.getElementById('analyticsView').classList.remove('hidden-view');
+        renderAnalyticsPage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closeAnalytics() {
+        document.getElementById('analyticsView').classList.add('hidden-view');
+        document.getElementById('dashboardView').classList.remove('hidden-view');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setAnalyticsRange(range) {
+        activeAnalyticsRange = range;
+        document.getElementById('tabDaily').classList.toggle('active', range === 'daily');
+        document.getElementById('tabWeekly').classList.toggle('active', range === 'weekly');
+        document.getElementById('tabMonthly').classList.toggle('active', range === 'monthly');
+        renderAnalyticsPage();
+    }
+
+    function getRecentDateKeys(numDays) {
+        const keys = [];
+        const now = new Date();
+        for (let i = numDays - 1; i >= 0; i--) {
+            const d = new Date(now);
+            d.setDate(now.getDate() - i);
+            keys.push({
+                key: getLocalDateKey(d),
+                shortDay: d.toLocaleDateString('en-US', { weekday: 'short' }),
+                shortDate: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                dayNum: d.getDate()
+            });
+        }
+        return keys;
+    }
+
+    function renderAnalyticsPage() {
+        const todayKey = getLocalDateKey();
+        // Always ensure live today data is reflected in analytics view
+        const liveHistory = { ...historyData, [todayKey]: buildDaySnapshot(habits) };
+
+        if (activeAnalyticsRange === 'daily') {
+            const snap = liveHistory[todayKey];
+            const pct = snap.totalTarget > 0 ? Math.min(100, Math.round((snap.effectiveCovered / snap.totalTarget) * 100)) : 0;
+
+            document.getElementById('apTotalTime').textContent = formatDuration(snap.totalLogged);
+            document.getElementById('apTotalSub').textContent = 'Logged today';
+            document.getElementById('apAvgTime').textContent = `${snap.targetsHit} / ${snap.totalTargeted}`;
+            document.getElementById('apAvgSub').textContent = 'Targets hit today';
+            document.getElementById('apConsistency').textContent = `${pct}%`;
+            document.getElementById('apConsistencySub').textContent = `${formatDuration(snap.effectiveCovered)} / ${formatDuration(snap.totalTarget)}`;
+            document.getElementById('apTrackedDays').textContent = `${Object.keys(liveHistory).filter(k => (liveHistory[k]?.totalLogged || 0) > 0).length}`;
+            document.getElementById('apBestDaySub').textContent = 'Total history days';
+
+            document.getElementById('apChartTitle').textContent = '📊 Today’s Activity Time Chart';
+            document.getElementById('apChartSubtitle').textContent = 'Minutes logged per habit today';
+            document.getElementById('apBreakdownSubtitle').textContent = 'Today’s time & target progress';
+
+            const maxMins = Math.max(60, ...habits.map(h => h.logged));
+            const chartEl = document.getElementById('apBarChart');
+            if (snap.totalLogged === 0) {
+                chartEl.innerHTML = `<div class="empty-chart-msg">No time logged yet today. Log a session on the dashboard to see today's visual chart.</div>`;
+            } else {
+                chartEl.innerHTML = `<div class="bar-chart-grid">${habits.map(h => {
+                    const heightPct = Math.round((h.logged / maxMins) * 100);
+                    const shortName = h.name.split(' ')[0];
+                    return `
+                        <div class="bar-col" title="${escapeAttr(h.name)}: ${formatDuration(h.logged)}">
+                            <div class="bar-val-top">${h.logged > 0 ? formatDuration(h.logged) : '0m'}</div>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="height: ${heightPct}%; background-color: ${h.color}"></div>
+                            </div>
+                            <div class="bar-label-bottom">${escapeAttr(shortName)}</div>
+                        </div>
+                    `;
+                }).join('')}</div>`;
+            }
+
+            const sorted = [...habits].sort((a, b) => b.logged - a.logged);
+            document.getElementById('apHabitBreakdown').innerHTML = sorted.map(h => {
+                const share = snap.totalLogged > 0 ? Math.round((h.logged / snap.totalLogged) * 100) : 0;
+                const barW = h.target > 0 ? Math.min(100, Math.round((h.logged / h.target) * 100)) : share;
+                return `
+                    <div class="habit-bar-row">
+                        <div class="habit-bar-head">
+                            <span class="breakdown-left"><span class="dot" style="background-color:${h.color}"></span><strong>${escapeAttr(h.name)}</strong></span>
+                            <span class="habit-bar-meta">${formatDuration(h.logged)} ${h.target > 0 ? `/ ${formatDuration(h.target)}` : ''} (${share}% share)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width:${barW}%; background-color:${h.color}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            return;
+        }
+
+        // Weekly (7d) or Monthly (30d)
+        const numDays = activeAnalyticsRange === 'weekly' ? 7 : 30;
+        const dateList = getRecentDateKeys(numDays);
+
+        let totalPeriodMins = 0;
+        let totalPeriodCovered = 0;
+        let totalPeriodTarget = 0;
+        let activeDays = 0;
+        let bestDay = { label: '—', mins: 0 };
+        const habitTotals = {};
+
+        const daySeries = dateList.map(d => {
+            const snap = liveHistory[d.key];
+            const logged = snap ? (snap.totalLogged || 0) : 0;
+            const covered = snap ? (snap.effectiveCovered || 0) : 0;
+            const target = snap ? (snap.totalTarget || 0) : 0;
+
+            if (logged > 0) {
+                activeDays++;
+                totalPeriodMins += logged;
+                totalPeriodCovered += covered;
+                totalPeriodTarget += target;
+                if (logged > bestDay.mins) {
+                    bestDay = { label: d.shortDate, mins: logged };
+                }
+            }
+
+            if (snap && snap.habits) {
+                Object.entries(snap.habits).forEach(([id, h]) => {
+                    const key = h.name || id;
+                    if (!habitTotals[key]) {
+                        habitTotals[key] = { name: h.name, color: h.color || '#3b82f6', logged: 0, daysActive: 0 };
+                    }
+                    habitTotals[key].logged += (h.logged || 0);
+                    if ((h.logged || 0) > 0) habitTotals[key].daysActive += 1;
+                });
+            }
+
+            return {
+                ...d,
+                logged,
+                pct: target > 0 ? Math.min(100, Math.round((covered / target) * 100)) : 0
+            };
+        });
+
+        const avgMins = activeDays > 0 ? Math.round(totalPeriodMins / activeDays) : 0;
+        const consistencyPct = totalPeriodTarget > 0 ? Math.min(100, Math.round((totalPeriodCovered / totalPeriodTarget) * 100)) : 0;
+
+        document.getElementById('apTotalTime').textContent = formatDuration(totalPeriodMins);
+        document.getElementById('apTotalSub').textContent = `Last ${numDays} days`;
+        document.getElementById('apAvgTime').textContent = formatDuration(avgMins);
+        document.getElementById('apAvgSub').textContent = activeDays > 0 ? `Across ${activeDays} logged day${activeDays > 1 ? 's' : ''}` : 'No days logged yet';
+        document.getElementById('apConsistency').textContent = `${consistencyPct}%`;
+        document.getElementById('apConsistencySub').textContent = 'Avg target met on active days';
+        document.getElementById('apTrackedDays').textContent = `${activeDays} / ${numDays}`;
+        document.getElementById('apBestDaySub').textContent = bestDay.mins > 0 ? `Best: ${bestDay.label} (${formatDuration(bestDay.mins)})` : 'Start logging daily';
+
+        document.getElementById('apChartTitle').textContent = activeAnalyticsRange === 'weekly'
+            ? '📅 Weekly Trend (Last 7 Days)'
+            : '🗓️ Monthly Trend (Last 30 Days)';
+        document.getElementById('apChartSubtitle').textContent = 'Total time logged per day';
+        document.getElementById('apBreakdownSubtitle').textContent = `Total & daily average across last ${numDays} days`;
+
+        const maxDayMins = Math.max(60, ...daySeries.map(d => d.logged));
+        const chartEl = document.getElementById('apBarChart');
+
+        if (totalPeriodMins === 0) {
+            chartEl.innerHTML = `<div class="empty-chart-msg">No logged history found for the last ${numDays} days yet. Your daily logs will appear here automatically as you track.</div>`;
+        } else {
+            chartEl.innerHTML = `<div class="bar-chart-grid" style="${numDays === 30 ? 'gap:4px;' : ''}">${daySeries.map(d => {
+                const hPct = Math.round((d.logged / maxDayMins) * 100);
+                const label = numDays === 7 ? d.shortDay : String(d.dayNum);
+                const barColor = d.key === todayKey ? 'var(--accent-green)' : 'var(--accent-blue)';
+                const topVal = numDays === 7
+                    ? (d.logged > 0 ? formatDuration(d.logged) : '')
+                    : (d.logged >= 60 ? `${Math.round(d.logged / 60)}h` : '');
+                return `
+                    <div class="bar-col" style="${numDays === 30 ? 'min-width:14px;' : ''}" title="${d.shortDate}: ${formatDuration(d.logged)} (${d.pct}% target met)">
+                        <div class="bar-val-top">${topVal}</div>
+                        <div class="bar-track" style="${numDays === 30 ? 'max-width:18px;' : ''}">
+                            <div class="bar-fill" style="height: ${hPct}%; background-color: ${barColor}"></div>
+                        </div>
+                        <div class="bar-label-bottom">${label}</div>
+                    </div>
+                `;
+            }).join('')}</div>`;
+        }
+
+        const breakdownArr = Object.values(habitTotals).sort((a, b) => b.logged - a.logged);
+        const breakdownEl = document.getElementById('apHabitBreakdown');
+        if (breakdownArr.length === 0 || totalPeriodMins === 0) {
+            breakdownEl.innerHTML = `<div class="empty-chart-msg">Log your habits on the dashboard to build your ${activeAnalyticsRange} breakdown.</div>`;
+        } else {
+            breakdownEl.innerHTML = breakdownArr.map(h => {
+                const share = totalPeriodMins > 0 ? Math.round((h.logged / totalPeriodMins) * 100) : 0;
+                const avgHabit = activeDays > 0 ? Math.round(h.logged / activeDays) : 0;
+                return `
+                    <div class="habit-bar-row">
+                        <div class="habit-bar-head">
+                            <span class="breakdown-left"><span class="dot" style="background-color:${h.color}"></span><strong>${escapeAttr(h.name)}</strong></span>
+                            <span class="habit-bar-meta">${formatDuration(h.logged)} total • Avg ${formatDuration(avgHabit)}/day (${share}%)</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width:${share}%; background-color:${h.color}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
     // Flexible Manipulation Functions
     function adjustTime(id, mins) {
         const habit = habits.find(h => h.id === id);
         if (habit) {
+            const prevLogged = habit.logged;
             habit.logged = Math.max(0, habit.logged + mins);
             renderAll();
             saveData();
+            checkGoalNotifications(habit, prevLogged);
         }
     }
 
     function setExactLogged(id, val) {
         const habit = habits.find(h => h.id === id);
         if (habit) {
+            const prevLogged = habit.logged;
             habit.logged = Math.max(0, parseInt(val) || 0);
             renderAll();
             saveData();
+            checkGoalNotifications(habit, prevLogged);
         }
     }
 
@@ -1135,10 +1959,18 @@
     }
 
     function newDayReset() {
-        if (confirm('Start fresh for a new day? (Your custom targets and habit names will stay saved)')) {
+        if (confirm('Start fresh for a new day? (Past days stay saved in Analytics, and your custom targets/names remain unchanged)')) {
+            // Preserve previous day's log if the user resets on the next morning
+            const lastDate = localStorage.getItem(LAST_DATE_KEY);
+            const todayKey = getLocalDateKey();
+            if (lastDate && lastDate !== todayKey && habits.some(h => h.logged > 0)) {
+                updateHistoryForDate(lastDate);
+            }
+
             habits.forEach(h => h.logged = 0);
+            localStorage.removeItem(NOTIFIED_TODAY_KEY);
             renderAll();
-            saveData();
+            saveData(todayKey);
         }
     }
 
@@ -1168,7 +2000,7 @@
             btn.textContent = '⏸ Pause';
             btn.classList.add('running');
             bgStatus.classList.add('active');
-            if (!timerInterval) {
+            if (!timerInterval && !document.hidden) {
                 timerInterval = setInterval(updateTimerDisplay, 1000);
             }
         } else {
@@ -1248,15 +2080,52 @@
         bgStatus.classList.remove('active');
     }
 
-    // JSON Backup & Restore
+    // JSON & CSV Backup / Restore
     function exportData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(habits, null, 2));
+        const payload = {
+            version: 2,
+            exportedAt: new Date().toISOString(),
+            habits,
+            history: historyData
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `flexible-habit-tracker-${new Date().toISOString().slice(0,10)}.json`);
+        downloadAnchor.setAttribute("download", `flexible-habit-tracker-${getLocalDateKey()}.json`);
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
+        showToast('Full JSON backup (habits + history) exported');
+    }
+
+    function exportCSV() {
+        const todayKey = getLocalDateKey();
+        const combined = { ...historyData, [todayKey]: buildDaySnapshot(habits) };
+        const rows = [['Date', 'Habit', 'Logged (mins)', 'Target (mins)', 'Completed']];
+
+        Object.keys(combined).sort().forEach(dateKey => {
+            const snap = combined[dateKey];
+            if (!snap || !snap.habits) return;
+            Object.values(snap.habits).forEach(h => {
+                const done = h.target > 0 ? (h.logged >= h.target ? 'Yes' : 'No') : 'Open';
+                rows.push([
+                    dateKey,
+                    `"${String(h.name).replace(/"/g, '""')}"`,
+                    h.logged || 0,
+                    h.target || 0,
+                    done
+                ]);
+            });
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(rows.map(r => r.join(',')).join('\n'));
+        const link = document.createElement('a');
+        link.setAttribute('href', csvContent);
+        link.setAttribute('download', `habit-analytics-${todayKey}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        showToast('CSV report exported successfully');
     }
 
     function importData(event) {
@@ -1267,16 +2136,29 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
+                    // Backward-compatible with older backups
                     habits = imported;
                     renderAll();
                     saveData();
                     alert('Backup imported & synced to cloud successfully!');
+                } else if (imported && Array.isArray(imported.habits)) {
+                    habits = imported.habits;
+                    if (imported.history && typeof imported.history === 'object') {
+                        historyData = { ...historyData, ...imported.history };
+                        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
+                    }
+                    renderAll();
+                    saveData();
+                    alert('Full backup (habits + history) imported & synced to cloud successfully!');
+                } else {
+                    alert('Invalid JSON format.');
                 }
             } catch (err) {
                 alert('Invalid JSON file.');
             }
         };
         reader.readAsText(file);
+        event.target.value = '';
     }
 
     // Expose functions globally for inline HTML event handlers (required for ES modules)
@@ -1287,6 +2169,7 @@
     window.newDayReset = newDayReset;
     window.addNewHabit = addNewHabit;
     window.exportData = exportData;
+    window.exportCSV = exportCSV;
     window.importData = importData;
     window.restoreDefaultSchedule = restoreDefaultSchedule;
     window.renameHabit = renameHabit;
@@ -1294,6 +2177,11 @@
     window.setExactLogged = setExactLogged;
     window.setExactTarget = setExactTarget;
     window.deleteHabit = deleteHabit;
+    window.openAnalytics = openAnalytics;
+    window.closeAnalytics = closeAnalytics;
+    window.setAnalyticsRange = setAnalyticsRange;
+    window.toggleTheme = toggleTheme;
+    window.toggleNotifications = toggleNotifications;
 
     init();
 </script>
