@@ -102,6 +102,16 @@
             font-weight: 600;
         }
 
+        .streak-pill {
+            font-size: 0.75rem;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
         .header-right {
             display: flex;
             align-items: center;
@@ -353,6 +363,43 @@
             border-color: var(--text-secondary);
         }
 
+        /* Custom Tag Filter Bar */
+        .tag-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .tag-filter-label {
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-right: 2px;
+        }
+
+        .tag-pill-btn {
+            background-color: var(--bg-item);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tag-pill-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .tag-pill-btn.active {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            border-color: var(--accent-blue);
+        }
+
         /* Habit Items */
         .habit-list {
             display: flex;
@@ -371,7 +418,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             gap: 10px;
             flex-wrap: wrap;
         }
@@ -407,6 +454,65 @@
         .habit-name-input:hover, .habit-name-input:focus {
             border-color: var(--border-color);
             background-color: var(--bg-main);
+        }
+
+        .habit-streak-chip {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent-orange);
+            background: rgba(245, 158, 11, 0.14);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            padding: 1px 6px;
+            border-radius: 999px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .habit-tags-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .habit-tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            padding: 1px 7px;
+            border-radius: 999px;
+        }
+
+        .tag-remove-x {
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            padding: 0 2px;
+            line-height: 1;
+        }
+
+        .tag-remove-x:hover {
+            color: var(--accent-red);
+        }
+
+        .btn-add-tag {
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.68rem;
+            padding: 1px 7px;
+            border-radius: 999px;
+        }
+
+        .btn-add-tag:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
         }
 
         .habit-progress-text {
@@ -467,13 +573,8 @@
             background-color: var(--border-color);
         }
 
-        .btn-minus {
-            color: #ef4444;
-        }
-
-        .btn-zero {
-            color: var(--accent-orange);
-        }
+        .btn-minus { color: #ef4444; }
+        .btn-zero { color: var(--accent-orange); }
 
         /* Direct Inline Manipulation Inputs */
         .direct-edit-group {
@@ -536,8 +637,9 @@
             outline: none;
         }
 
-        .add-habit-form input[type="text"] { flex: 1; min-width: 180px; }
-        .add-habit-form input[type="number"] { width: 110px; }
+        .add-habit-form input#newHabitName { flex: 1.4; min-width: 170px; }
+        .add-habit-form input#newHabitTags { flex: 1; min-width: 130px; }
+        .add-habit-form input[type="number"] { width: 95px; }
 
         .btn-add {
             background-color: var(--accent-blue);
@@ -576,6 +678,7 @@
         .stat-value.green { color: var(--accent-green); }
         .stat-value.purple { color: #c084fc; }
         .stat-value.cyan { color: var(--accent-cyan); }
+        .stat-value.orange { color: var(--accent-orange); }
 
         .stat-label {
             font-size: 0.74rem;
@@ -634,32 +737,17 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .breakdown-right {
             text-align: right;
         }
 
-        .breakdown-time {
-            font-weight: 600;
-        }
-
-        .breakdown-share {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .target-achieved {
-            font-size: 0.75rem;
-            color: var(--accent-green);
-            display: block;
-        }
-
-        .target-pending {
-            font-size: 0.73rem;
-            color: var(--text-secondary);
-            display: block;
-        }
+        .breakdown-time { font-weight: 600; }
+        .breakdown-share { font-size: 0.8rem; color: var(--text-secondary); }
+        .target-achieved { font-size: 0.75rem; color: var(--accent-green); display: block; }
+        .target-pending { font-size: 0.73rem; color: var(--text-secondary); display: block; }
 
         /* Data Backup */
         .backup-actions {
@@ -692,7 +780,57 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
+        }
+
+        .analytics-controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+        }
+
+        .date-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .date-picker-input {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            padding: 6px 10px;
+            font-size: 0.82rem;
+            outline: none;
+            color-scheme: dark;
+        }
+
+        [data-theme="light"] .date-picker-input {
+            color-scheme: light;
+        }
+
+        .btn-today-mini {
+            background-color: var(--bg-item);
+            color: var(--accent-cyan);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 7px;
+            font-size: 0.78rem;
+        }
+
+        .btn-today-mini:hover {
+            border-color: var(--accent-cyan);
         }
 
         .btn-back {
@@ -704,9 +842,7 @@
             border-radius: 8px;
         }
 
-        .btn-back:hover {
-            border-color: var(--accent-blue);
-        }
+        .btn-back:hover { border-color: var(--accent-blue); }
 
         .range-tabs {
             display: inline-flex;
@@ -732,12 +868,16 @@
 
         .analytics-kpi-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 12px;
             margin-bottom: 20px;
         }
 
-        @media (max-width: 780px) {
+        @media (max-width: 960px) {
+            .analytics-kpi-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 560px) {
             .analytics-kpi-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
@@ -751,10 +891,17 @@
             display: flex;
             align-items: flex-end;
             gap: 8px;
-            height: 210px;
-            padding: 20px 6px 8px 6px;
+            height: 220px;
+            padding: 20px 8px 10px 8px;
             border-bottom: 1px solid var(--border-color);
             min-width: 300px;
+        }
+
+        /* 45-degree rotated labels for clean non-overlapping habit names */
+        .bar-chart-grid.rotated-labels {
+            height: 295px;
+            padding: 22px 16px 96px 68px;
+            gap: 14px;
         }
 
         .bar-col {
@@ -766,6 +913,16 @@
             justify-content: flex-end;
             align-items: center;
             gap: 6px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .bar-chart-grid.rotated-labels .bar-col {
+            min-width: 46px;
+        }
+
+        .bar-col:hover .bar-track {
+            outline: 1px solid var(--accent-cyan);
         }
 
         .bar-val-top {
@@ -802,13 +959,44 @@
             max-width: 68px;
         }
 
-        .habit-bar-row {
-            margin-bottom: 14px;
+        .bar-chart-grid.rotated-labels .bar-label-bottom {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 50%;
+            transform: rotate(-45deg);
+            transform-origin: top right;
+            text-align: right;
+            max-width: 122px;
+            font-size: 0.72rem;
+            color: var(--text-primary);
+            opacity: 0.88;
         }
 
-        .habit-bar-row:last-child {
-            margin-bottom: 0;
+        .progress-legend {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
         }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend-swatch {
+            width: 9px;
+            height: 9px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .habit-bar-row { margin-bottom: 14px; }
+        .habit-bar-row:last-child { margin-bottom: 0; }
 
         .habit-bar-head {
             display: flex;
@@ -830,6 +1018,120 @@
             padding: 36px 16px;
             color: var(--text-secondary);
             font-size: 0.9rem;
+        }
+
+        /* Interactive Chart Tooltip */
+        .chart-tooltip {
+            position: fixed;
+            z-index: 9998;
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 10px;
+            padding: 10px 13px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+            font-size: 0.8rem;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.15s ease, transform 0.15s ease;
+            max-width: 240px;
+        }
+
+        .chart-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .chart-tooltip-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .chart-tooltip-line {
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+        }
+
+        /* Settings Modal (Daily Summary + Auto-Dark Schedule + SW Status) */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .setting-group {
+            background-color: var(--bg-item);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .setting-row:last-child { margin-bottom: 0; }
+
+        .setting-row input[type="time"],
+        .setting-row select {
+            width: auto;
+            padding: 5px 8px;
+            font-size: 0.82rem;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .setting-help {
+            font-size: 0.73rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
         }
 
         /* Subtle Toast Notification */
@@ -866,17 +1168,19 @@
         <div class="brand">
             ⏱️ Habit & Time Analytics
             <span class="mode-pill">Flexible Control Mode</span>
+            <span class="streak-pill" id="headerStreakPill" title="Consecutive days tracked">🔥 0d Streak</span>
         </div>
         <div class="header-right">
             <button class="header-action-btn" id="analyticsNavBtn" onclick="openAnalytics()" title="Open Daily, Weekly & Monthly Charts">📈 Analytics</button>
-            <button class="header-action-btn" id="notifToggleBtn" onclick="toggleNotifications()" title="Toggle Goal Achievement Alerts">🔕 Alerts Off</button>
-            <button class="header-action-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Dark / OLED / Light Theme">🌙 Dark</button>
+            <button class="header-action-btn" id="notifToggleBtn" onclick="toggleNotifications()" title="Toggle Goal & Summary Alerts">🔕 Alerts Off</button>
+            <button class="header-action-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Dark / OLED / Light / Auto">🌙 Dark</button>
+            <button class="header-action-btn" onclick="openSettingsModal()" title="Daily Summary & Auto-Dark Settings">⚙️</button>
             <div class="sync-badge syncing" id="syncStatus">🔄 Connecting Cloud...</div>
             <div class="date-badge" id="currentDate"></div>
         </div>
     </header>
 
-    <!-- MAIN DASHBOARD VIEW (Unchanged clean layout) -->
+    <!-- MAIN DASHBOARD VIEW -->
     <div id="dashboardView">
         <!-- Focus Timer Section -->
         <div class="focus-bar">
@@ -909,13 +1213,17 @@
                     </div>
 
                     <div class="helper-hint">
-                        💡 <strong>Accurate & Cloud-Synced:</strong> Each activity counts toward <strong>Planned Target Met</strong> only up to its own target, and your timer & logs automatically sync across all your devices via Firebase (with offline cache).
+                        💡 <strong>Accurate & Cloud-Synced:</strong> Each activity counts toward <strong>Planned Target Met</strong> only up to its own target, and your timer, custom tags, & logs automatically sync across all your devices via Firebase (with offline cache).
                     </div>
+
+                    <!-- Custom Tag Filter Bar -->
+                    <div class="tag-filter-bar" id="dashboardTagFilterBar"></div>
 
                     <div class="habit-list" id="habitList"></div>
 
                     <div class="add-habit-form">
                         <input type="text" id="newHabitName" placeholder="Add custom activity (e.g., Rest, Revision)...">
+                        <input type="text" id="newHabitTags" placeholder="Tags (e.g., Study, Health)">
                         <input type="number" id="newHabitTarget" value="60" min="0" step="5" title="Target minutes (0 = Open mode)">
                         <button class="btn-add" onclick="addNewHabit()">+ Add Activity</button>
                     </div>
@@ -984,6 +1292,16 @@
             </div>
         </div>
 
+        <!-- Interactive Date Picker & Tag Filter Controls -->
+        <div class="analytics-controls-bar">
+            <div class="date-picker-group">
+                <label for="analyticsDatePicker">📅 <strong>Date / End Date:</strong></label>
+                <input type="date" id="analyticsDatePicker" class="date-picker-input" onchange="onAnalyticsDateChange(this.value)">
+                <button class="btn-today-mini" onclick="resetAnalyticsDateToToday()">Today</button>
+            </div>
+            <div class="tag-filter-bar" id="analyticsTagFilterBar" style="margin-bottom:0;"></div>
+        </div>
+
         <div class="analytics-kpi-grid">
             <div class="stat-box">
                 <div class="stat-value blue" id="apTotalTime">0m</div>
@@ -1001,6 +1319,11 @@
                 <div class="stat-sub" id="apConsistencySub">Planned time covered</div>
             </div>
             <div class="stat-box">
+                <div class="stat-value orange" id="apStreakVal">0d</div>
+                <div class="stat-label">Current Streak</div>
+                <div class="stat-sub" id="apStreakSub">Best: 0d</div>
+            </div>
+            <div class="stat-box">
                 <div class="stat-value purple" id="apTrackedDays">0</div>
                 <div class="stat-label">Days Tracked</div>
                 <div class="stat-sub" id="apBestDaySub">History auto-saved</div>
@@ -1010,21 +1333,86 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-title" id="apChartTitle">📊 Time Distribution Chart</div>
-                <span style="font-size:0.78rem; color:var(--text-secondary);" id="apChartSubtitle"></span>
+                <span style="font-size:0.78rem; color:var(--text-secondary);" id="apChartSubtitle">Tap or hover any bar for details</span>
             </div>
             <div class="chart-container" id="apBarChart"></div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <div class="card-title">🧩 Habit-Wise Breakdown</div>
+                <div class="card-title">🧩 Habit-Wise Breakdown (Color-Coded)</div>
                 <span style="font-size:0.78rem; color:var(--text-secondary);" id="apBreakdownSubtitle">Total time & share</span>
+            </div>
+            <div class="progress-legend">
+                <span class="legend-item"><span class="legend-swatch" style="background:#10b981"></span> 100%+ Target Hit</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#3b82f6"></span> 65–99% On Track</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#f59e0b"></span> 30–64% In Progress</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:#ef4444"></span> &lt;30% Needs Focus</span>
             </div>
             <div id="apHabitBreakdown"></div>
         </div>
     </div>
 </div>
 
+<!-- SETTINGS MODAL (Daily Summary + Auto-Dark Scheduling + Service Worker) -->
+<div id="settingsModal" class="modal-backdrop hidden-view" onclick="if(event.target === this) closeSettingsModal()">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">⚙️ Smart Alerts & Theme Schedule</div>
+            <button class="btn-delete" onclick="closeSettingsModal()">✕</button>
+        </div>
+
+        <div class="setting-group">
+            <div class="setting-row">
+                <strong>🔔 Daily Summary Push Notification</strong>
+                <input type="checkbox" id="setDailySummaryEnabled">
+            </div>
+            <div class="setting-row">
+                <label for="setDailySummaryTime">Summary Time:</label>
+                <input type="time" id="setDailySummaryTime" value="21:30">
+            </div>
+            <div class="setting-row">
+                <span>Service Worker Status:</span>
+                <span id="swStatusText" style="font-weight:700; color:var(--accent-cyan);">Checking...</span>
+            </div>
+            <div class="setting-help">
+                Turn <strong>Alerts On</strong> in the top bar and add <code>sw.js</code> to your repo root for Android/Watch system notifications.
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <div class="setting-row">
+                <strong>🌅 Auto Dark / OLED Scheduling</strong>
+                <select id="setAutoNightTheme">
+                    <option value="oled">OLED Black</option>
+                    <option value="dark">Standard Dark</option>
+                </select>
+            </div>
+            <div class="setting-row">
+                <label for="setAutoStart">Switch to Dark at (Sunset):</label>
+                <input type="time" id="setAutoStart" value="18:30">
+            </div>
+            <div class="setting-row">
+                <label for="setAutoEnd">Switch to Light at (Sunrise):</label>
+                <input type="time" id="setAutoEnd" value="06:00">
+            </div>
+            <div class="setting-help">
+                Tap the Theme button in the header until it shows <strong>🌅 Auto</strong> to enable automatic switching.
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-backup" onclick="sendDailySummaryNow()">Send Test Summary</button>
+            <button class="btn-reset" onclick="closeSettingsModal()">Cancel</button>
+            <button class="btn-add" onclick="saveAppSettings()">Save Settings</button>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Chart Tooltip -->
+<div class="chart-tooltip" id="chartTooltip"></div>
+
+<!-- Toast -->
 <div class="toast" id="toastEl"></div>
 
 <script type="module">
@@ -1065,23 +1453,59 @@
     const NOTIFIED_TODAY_KEY = 'habitTrackerNotifiedToday_v1';
     const PENDING_SYNC_KEY = 'habitTrackerPendingSync_v1';
     const LAST_DATE_KEY = 'habitTrackerLastDate_v1';
+    const SETTINGS_STORAGE_KEY = 'habitTrackerSettings_v1';
+    const LAST_SUMMARY_DATE_KEY = 'habitTrackerLastSummaryDate_v1';
 
     const COLORS = ['#6366f1', '#06b6d4', '#3b82f6', '#ef4444', '#14b8a6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981'];
 
+    const DEFAULT_TAGS_BY_ID = {
+        1: ['Health', 'Rest'],
+        2: ['Study'],
+        3: ['Study'],
+        4: ['Health', 'Fitness'],
+        5: ['Personal'],
+        6: ['Health', 'Routine'],
+        7: ['Work'],
+        8: ['Routine'],
+        9: ['Health', 'Fitness']
+    };
+
     const DEFAULT_HABITS = [
-        { id: 1, name: 'Sleep', target: 420, logged: 0, color: '#6366f1' },
-        { id: 2, name: 'Daily Newspaper Reading', target: 30, logged: 0, color: '#06b6d4' },
-        { id: 3, name: 'Self-Study / Problem Solving', target: 210, logged: 0, color: '#3b82f6' },
-        { id: 4, name: 'Resistance Training & Fitness', target: 60, logged: 0, color: '#ef4444' },
-        { id: 5, name: 'Self Care (Bath & Clothes Wash)', target: 60, logged: 0, color: '#14b8a6' },
-        { id: 6, name: 'Cooking, Meal Prep & Eating', target: 150, logged: 0, color: '#f59e0b' },
-        { id: 7, name: 'Tuition & Coaching Classes', target: 360, logged: 0, color: '#8b5cf6' },
-        { id: 8, name: 'Travelling & Commute', target: 120, logged: 0, color: '#ec4899' },
-        { id: 9, name: 'Walking / Active Steps', target: 30, logged: 0, color: '#10b981' }
+        { id: 1, name: 'Sleep', target: 420, logged: 0, color: '#6366f1', tags: ['Health', 'Rest'] },
+        { id: 2, name: 'Daily Newspaper Reading', target: 30, logged: 0, color: '#06b6d4', tags: ['Study'] },
+        { id: 3, name: 'Self-Study / Problem Solving', target: 210, logged: 0, color: '#3b82f6', tags: ['Study'] },
+        { id: 4, name: 'Resistance Training & Fitness', target: 60, logged: 0, color: '#ef4444', tags: ['Health', 'Fitness'] },
+        { id: 5, name: 'Self Care (Bath & Clothes Wash)', target: 60, logged: 0, color: '#14b8a6', tags: ['Personal'] },
+        { id: 6, name: 'Cooking, Meal Prep & Eating', target: 150, logged: 0, color: '#f59e0b', tags: ['Health', 'Routine'] },
+        { id: 7, name: 'Tuition & Coaching Classes', target: 360, logged: 0, color: '#8b5cf6', tags: ['Work'] },
+        { id: 8, name: 'Travelling & Commute', target: 120, logged: 0, color: '#ec4899', tags: ['Routine'] },
+        { id: 9, name: 'Walking / Active Steps', target: 30, logged: 0, color: '#10b981', tags: ['Health', 'Fitness'] }
     ];
 
-    let habits = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_HABITS));
+    const DEFAULT_SETTINGS = {
+        dailySummaryEnabled: true,
+        dailySummaryTime: '21:30',
+        autoThemeNightMode: 'oled',
+        autoThemeStart: '18:30',
+        autoThemeEnd: '06:00'
+    };
+
+    function normalizeHabits(list) {
+        if (!Array.isArray(list)) return JSON.parse(JSON.stringify(DEFAULT_HABITS));
+        return list.map((h, idx) => ({
+            ...h,
+            logged: Math.max(0, Number(h.logged) || 0),
+            target: Math.max(0, Number(h.target) || 0),
+            color: h.color || COLORS[idx % COLORS.length],
+            tags: Array.isArray(h.tags)
+                ? h.tags.map(t => String(t).trim()).filter(Boolean)
+                : (DEFAULT_TAGS_BY_ID[h.id] ? [...DEFAULT_TAGS_BY_ID[h.id]] : [])
+        }));
+    }
+
+    let habits = normalizeHabits(JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_HABITS);
     let historyData = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY)) || {};
+    let appSettings = { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY)) || {}) };
     let timerState = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY)) || {
         isRunning: false,
         startTime: null,
@@ -1097,14 +1521,24 @@
     let currentTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
     let notificationsEnabled = localStorage.getItem(NOTIF_STORAGE_KEY) === 'true';
     let activeAnalyticsRange = 'daily';
+    let selectedAnalyticsDate = getLocalDateKey();
+    let dashboardTagFilter = 'All';
+    let analyticsTagFilter = 'All';
     let timerInterval = null;
     let toastTimeout = null;
+    let swRegistration = null;
+    let chartTooltipData = [];
 
     function getLocalDateKey(date = new Date()) {
         const y = date.getFullYear();
         const m = String(date.getMonth() + 1).padStart(2, '0');
         const d = String(date.getDate()).padStart(2, '0');
         return `${y}-${m}-${d}`;
+    }
+
+    function parseDateKey(dateKey) {
+        const [y, m, d] = dateKey.split('-').map(Number);
+        return new Date(y, m - 1, d);
     }
 
     function setSyncStatus(state, text) {
@@ -1131,26 +1565,81 @@
         localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(pendingSync));
     }
 
-    // Theme Handling (Dark / OLED Battery Saver / Light)
+    // Color-coded progress bar helper
+    function getStatusColor(pct) {
+        if (pct >= 100) return '#10b981'; // Green - Target Hit
+        if (pct >= 65) return '#3b82f6';  // Blue - On Track
+        if (pct >= 30) return '#f59e0b';  // Amber - In Progress
+        return '#ef4444';                 // Red - Needs Focus
+    }
+
+    // Service Worker Registration for Background / System Tray Notifications
+    async function registerServiceWorker() {
+        const statusEl = document.getElementById('swStatusText');
+        if (!('serviceWorker' in navigator)) {
+            if (statusEl) statusEl.textContent = 'Not Supported';
+            return;
+        }
+        try {
+            swRegistration = await navigator.serviceWorker.register('./sw.js');
+            if (statusEl) {
+                statusEl.textContent = 'Active ✓';
+                statusEl.style.color = 'var(--accent-green)';
+            }
+        } catch (err) {
+            console.warn('Service worker registration failed (ensure sw.js is uploaded to repo root):', err);
+            if (statusEl) {
+                statusEl.textContent = 'Add sw.js to repo';
+                statusEl.style.color = 'var(--accent-orange)';
+            }
+        }
+    }
+
+    // Theme Handling (Dark / OLED Battery Saver / Light / Auto Sunset Schedule)
+    function timeToMinutes(hhmm) {
+        const [h, m] = String(hhmm || '00:00').split(':').map(Number);
+        return (h * 60) + (m || 0);
+    }
+
+    function isNightTimeNow() {
+        const now = new Date();
+        const currentMins = now.getHours() * 60 + now.getMinutes();
+        const startMins = timeToMinutes(appSettings.autoThemeStart);
+        const endMins = timeToMinutes(appSettings.autoThemeEnd);
+        if (startMins > endMins) {
+            return currentMins >= startMins || currentMins < endMins;
+        }
+        return currentMins >= startMins && currentMins < endMins;
+    }
+
     function applyTheme(theme) {
         currentTheme = theme;
         localStorage.setItem(THEME_STORAGE_KEY, theme);
-        document.documentElement.setAttribute('data-theme', theme);
+
+        let effectiveTheme = theme;
+        if (theme === 'auto') {
+            effectiveTheme = isNightTimeNow() ? (appSettings.autoThemeNightMode || 'oled') : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', effectiveTheme);
+
         const btn = document.getElementById('themeToggleBtn');
         if (!btn) return;
         if (theme === 'oled') btn.textContent = '🔋 OLED';
         else if (theme === 'light') btn.textContent = '☀️ Light';
+        else if (theme === 'auto') btn.textContent = '🌅 Auto';
         else btn.textContent = '🌙 Dark';
     }
 
     function toggleTheme() {
-        const order = ['dark', 'oled', 'light'];
+        const order = ['dark', 'oled', 'light', 'auto'];
         const next = order[(order.indexOf(currentTheme) + 1) % order.length];
         applyTheme(next);
-        showToast(next === 'oled' ? 'OLED Black mode enabled (saves battery)' : `Theme switched to ${next.toUpperCase()}`);
+        if (next === 'oled') showToast('OLED Black mode enabled (saves battery)');
+        else if (next === 'auto') showToast(`Auto Theme ON (${appSettings.autoThemeStart}–${appSettings.autoThemeEnd})`);
+        else showToast(`Theme switched to ${next.toUpperCase()}`);
     }
 
-    // Push Notifications Handling
+    // Push Notifications & Daily Summary Handling
     function updateNotifButton() {
         const btn = document.getElementById('notifToggleBtn');
         if (!btn) return;
@@ -1165,23 +1654,21 @@
 
     async function toggleNotifications() {
         if (!notificationsEnabled) {
-            if ('Notification' in window) {
-                if (Notification.permission === 'default') {
-                    const perm = await Notification.requestPermission();
-                    if (perm !== 'granted') {
-                        showToast('Browser blocked system alerts. In-app alerts enabled.');
-                    }
+            if ('Notification' in window && Notification.permission === 'default') {
+                const perm = await Notification.requestPermission();
+                if (perm !== 'granted') {
+                    showToast('Browser blocked system alerts. In-app alerts enabled.');
                 }
             }
             notificationsEnabled = true;
             localStorage.setItem(NOTIF_STORAGE_KEY, 'true');
             updateNotifButton();
-            showToast('Goal achievement alerts turned ON');
+            showToast('Goal & Daily Summary alerts turned ON');
         } else {
             notificationsEnabled = false;
             localStorage.setItem(NOTIF_STORAGE_KEY, 'false');
             updateNotifButton();
-            showToast('Goal achievement alerts turned OFF');
+            showToast('Goal & Daily Summary alerts turned OFF');
         }
     }
 
@@ -1194,25 +1681,34 @@
         return saved;
     }
 
-    function sendGoalAlert(title, body) {
-        if (!notificationsEnabled) return;
+    async function dispatchSystemNotification(title, body, tag = 'habit-tracker') {
         showToast(`${title} — ${body}`);
 
         if ('vibrate' in navigator) {
             try { navigator.vibrate([120, 60, 120]); } catch (e) {}
         }
 
-        if ('Notification' in window && Notification.permission === 'granted') {
-            try {
-                new Notification(title, {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+        try {
+            if (swRegistration && swRegistration.showNotification) {
+                await swRegistration.showNotification(title, {
                     body,
-                    tag: title,
-                    silent: false
+                    tag,
+                    renotify: true,
+                    vibrate: [120, 60, 120]
                 });
-            } catch (e) {
-                console.warn('Notification dispatch skipped:', e);
+            } else {
+                new Notification(title, { body, tag, silent: false });
             }
+        } catch (e) {
+            console.warn('Notification dispatch skipped:', e);
         }
+    }
+
+    function sendGoalAlert(title, body) {
+        if (!notificationsEnabled) return;
+        dispatchSystemNotification(title, body, title);
     }
 
     function checkGoalNotifications(updatedHabit, prevLogged) {
@@ -1246,7 +1742,77 @@
         }
     }
 
-    // History Snapshot Management
+    function buildDailySummaryMessage() {
+        const snap = buildDaySnapshot(habits);
+        const pct = snap.totalTarget > 0
+            ? Math.min(100, Math.round((snap.effectiveCovered / snap.totalTarget) * 100))
+            : 0;
+        const { current } = calculateGlobalStreaks({ ...historyData, [getLocalDateKey()]: snap });
+        return {
+            title: '📊 Daily Habit Summary',
+            body: `Logged ${formatDuration(snap.totalLogged)} • ${pct}% Target Met (${snap.targetsHit}/${snap.totalTargeted} goals) • 🔥 ${current}d Streak`
+        };
+    }
+
+    function checkScheduledTasks() {
+        // Auto-Theme check
+        if (currentTheme === 'auto') {
+            applyTheme('auto');
+        }
+
+        // Daily Summary Push Notification check
+        if (notificationsEnabled && appSettings.dailySummaryEnabled) {
+            const todayKey = getLocalDateKey();
+            const lastSummaryDate = localStorage.getItem(LAST_SUMMARY_DATE_KEY);
+            const now = new Date();
+            const nowMins = now.getHours() * 60 + now.getMinutes();
+            const targetMins = timeToMinutes(appSettings.dailySummaryTime);
+
+            if (nowMins >= targetMins && lastSummaryDate !== todayKey) {
+                localStorage.setItem(LAST_SUMMARY_DATE_KEY, todayKey);
+                const msg = buildDailySummaryMessage();
+                dispatchSystemNotification(msg.title, msg.body, 'daily-summary');
+            }
+        }
+    }
+
+    async function sendDailySummaryNow() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            await Notification.requestPermission();
+        }
+        const msg = buildDailySummaryMessage();
+        await dispatchSystemNotification(msg.title, msg.body, 'daily-summary-test');
+    }
+
+    // Settings Modal Controls
+    function openSettingsModal() {
+        document.getElementById('setDailySummaryEnabled').checked = !!appSettings.dailySummaryEnabled;
+        document.getElementById('setDailySummaryTime').value = appSettings.dailySummaryTime || '21:30';
+        document.getElementById('setAutoNightTheme').value = appSettings.autoThemeNightMode || 'oled';
+        document.getElementById('setAutoStart').value = appSettings.autoThemeStart || '18:30';
+        document.getElementById('setAutoEnd').value = appSettings.autoThemeEnd || '06:00';
+        document.getElementById('settingsModal').classList.remove('hidden-view');
+    }
+
+    function closeSettingsModal() {
+        document.getElementById('settingsModal').classList.add('hidden-view');
+    }
+
+    function saveAppSettings() {
+        appSettings = {
+            dailySummaryEnabled: document.getElementById('setDailySummaryEnabled').checked,
+            dailySummaryTime: document.getElementById('setDailySummaryTime').value || '21:30',
+            autoThemeNightMode: document.getElementById('setAutoNightTheme').value || 'oled',
+            autoThemeStart: document.getElementById('setAutoStart').value || '18:30',
+            autoThemeEnd: document.getElementById('setAutoEnd').value || '06:00'
+        };
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(appSettings));
+        if (currentTheme === 'auto') applyTheme('auto');
+        closeSettingsModal();
+        showToast('Alert & Theme schedule saved');
+    }
+
+    // History Snapshot & Streak Calculations
     function buildDaySnapshot(habitList) {
         const totalLogged = habitList.reduce((sum, h) => sum + (h.logged || 0), 0);
         const targetedHabits = habitList.filter(h => h.target > 0);
@@ -1260,7 +1826,8 @@
                 name: h.name,
                 logged: h.logged || 0,
                 target: h.target || 0,
-                color: h.color || '#3b82f6'
+                color: h.color || '#3b82f6',
+                tags: Array.isArray(h.tags) ? [...h.tags] : []
             };
         });
 
@@ -1275,6 +1842,88 @@
         };
     }
 
+    function getLiveHistory() {
+        const todayKey = getLocalDateKey();
+        return { ...historyData, [todayKey]: buildDaySnapshot(habits) };
+    }
+
+    function calculateGlobalStreaks(liveHistory) {
+        const today = new Date();
+        const todayKey = getLocalDateKey(today);
+        let current = 0;
+
+        // If today has logged time, start counting from today; otherwise check from yesterday
+        let cursor = new Date(today);
+        if (!liveHistory[todayKey] || (liveHistory[todayKey].totalLogged || 0) <= 0) {
+            cursor.setDate(cursor.getDate() - 1);
+        }
+
+        for (let i = 0; i < 3650; i++) {
+            const key = getLocalDateKey(cursor);
+            if (liveHistory[key] && (liveHistory[key].totalLogged || 0) > 0) {
+                current++;
+                cursor.setDate(cursor.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+
+        // Compute best historical streak
+        const activeDates = Object.keys(liveHistory)
+            .filter(k => (liveHistory[k]?.totalLogged || 0) > 0)
+            .sort();
+
+        let best = 0;
+        let run = 0;
+        let prevTime = null;
+        activeDates.forEach(k => {
+            const t = parseDateKey(k).getTime();
+            if (prevTime !== null && Math.round((t - prevTime) / 86400000) === 1) {
+                run++;
+            } else {
+                run = 1;
+            }
+            if (run > best) best = run;
+            prevTime = t;
+        });
+
+        return { current, best };
+    }
+
+    function calculateHabitStreak(habit, liveHistory) {
+        const today = new Date();
+        const todayKey = getLocalDateKey(today);
+        const isHit = (snap) => {
+            if (!snap || !snap.habits) return false;
+            const entry = snap.habits[String(habit.id)] || Object.values(snap.habits).find(x => x.name === habit.name);
+            if (!entry) return false;
+            return entry.target > 0 ? entry.logged >= entry.target : entry.logged > 0;
+        };
+
+        let cursor = new Date(today);
+        if (!isHit(liveHistory[todayKey])) {
+            cursor.setDate(cursor.getDate() - 1);
+        }
+
+        let streak = 0;
+        for (let i = 0; i < 3650; i++) {
+            const key = getLocalDateKey(cursor);
+            if (isHit(liveHistory[key])) {
+                streak++;
+                cursor.setDate(cursor.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }
+
+    function getAllUniqueTags() {
+        const set = new Set();
+        habits.forEach(h => (h.tags || []).forEach(t => set.add(t)));
+        return ['All', ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+    }
+
     function updateHistoryForDate(dateKey) {
         historyData[dateKey] = buildDaySnapshot(habits);
         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
@@ -1284,32 +1933,33 @@
     function init() {
         applyTheme(currentTheme);
         updateNotifButton();
+        registerServiceWorker();
 
         const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
 
-        // Ensure today's baseline exists in local history if habits already have logged time
         const todayKey = getLocalDateKey();
+        selectedAnalyticsDate = todayKey;
+        const datePicker = document.getElementById('analyticsDatePicker');
+        if (datePicker) {
+            datePicker.value = todayKey;
+            datePicker.max = todayKey;
+        }
+
         if (!historyData[todayKey] && habits.some(h => h.logged > 0)) {
             updateHistoryForDate(todayKey);
         }
 
-        // Render immediately from local cache
         renderAll();
         restoreTimerState();
-
-        // Start real-time Firebase Cloud listeners
         startCloudSync();
+        checkScheduledTasks();
 
-        // Flush any offline edits automatically when connection returns
-        window.addEventListener('online', () => {
-            flushPendingSync();
-        });
-        window.addEventListener('offline', () => {
-            setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
-        });
+        setInterval(checkScheduledTasks, 30000);
 
-        // Battery-safe timer handling: pause interval ticks when tab/screen is hidden, resync on wake
+        window.addEventListener('online', () => flushPendingSync());
+        window.addEventListener('offline', () => setSyncStatus('offline', '⚠️ Offline (Cached Locally)'));
+
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 if (timerInterval) {
@@ -1318,13 +1968,23 @@
                 }
             } else {
                 updateTimerDisplay();
+                checkScheduledTasks();
                 if (timerState.isRunning && !timerInterval) {
                     timerInterval = setInterval(updateTimerDisplay, 1000);
                 }
             }
         });
-        window.addEventListener('focus', updateTimerDisplay);
+
+        window.addEventListener('focus', () => {
+            updateTimerDisplay();
+            checkScheduledTasks();
+        });
         window.addEventListener('pageshow', updateTimerDisplay);
+
+        // Dismiss chart tooltip when tapping outside a chart column
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.bar-col')) hideChartTooltip();
+        });
     }
 
     async function flushPendingSync() {
@@ -1354,7 +2014,6 @@
     }
 
     function startCloudSync() {
-        // Real-time listener for Habits
         onSnapshot(habitsDocRef, (snapshot) => {
             if (pendingSync.habits) {
                 flushPendingSync();
@@ -1363,8 +2022,9 @@
             if (snapshot.exists()) {
                 const data = snapshot.data();
                 if (Array.isArray(data.items)) {
-                    if (JSON.stringify(data.items) !== JSON.stringify(habits)) {
-                        habits = data.items;
+                    const normalized = normalizeHabits(data.items);
+                    if (JSON.stringify(normalized) !== JSON.stringify(habits)) {
+                        habits = normalized;
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
                         renderAll();
                     }
@@ -1378,7 +2038,6 @@
             setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
         });
 
-        // Real-time listener for History (Daily / Weekly / Monthly)
         onSnapshot(historyDocRef, (snapshot) => {
             if (pendingSync.history) {
                 flushPendingSync();
@@ -1387,14 +2046,11 @@
             if (snapshot.exists()) {
                 const data = snapshot.data();
                 if (data.days && typeof data.days === 'object') {
-                    // Merge cloud history with any local-only days so nothing is lost
                     const merged = { ...historyData, ...data.days };
                     if (JSON.stringify(merged) !== JSON.stringify(historyData)) {
                         historyData = merged;
                         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
-                        if (!document.getElementById('analyticsView').classList.contains('hidden-view')) {
-                            renderAnalyticsPage();
-                        }
+                        renderAll();
                     }
                 }
             } else if (Object.keys(historyData).length > 0) {
@@ -1404,7 +2060,6 @@
             console.error("Firestore history sync error:", error);
         });
 
-        // Real-time listener for Timer
         onSnapshot(timerDocRef, (snapshot) => {
             if (pendingSync.timer) {
                 flushPendingSync();
@@ -1440,10 +2095,7 @@
             return;
         }
         try {
-            await setDoc(historyDocRef, {
-                days: historyData,
-                updatedAt: Date.now()
-            });
+            await setDoc(historyDocRef, { days: historyData, updatedAt: Date.now() });
             pendingSync.history = false;
             savePendingFlags();
         } catch (error) {
@@ -1493,10 +2145,7 @@
             return;
         }
         try {
-            await setDoc(timerDocRef, {
-                ...timerState,
-                updatedAt: Date.now()
-            });
+            await setDoc(timerDocRef, { ...timerState, updatedAt: Date.now() });
             pendingSync.timer = false;
             savePendingFlags();
         } catch (error) {
@@ -1523,12 +2172,39 @@
     }
 
     function renderAll() {
+        const liveHistory = getLiveHistory();
+        const { current, best } = calculateGlobalStreaks(liveHistory);
+        const streakPill = document.getElementById('headerStreakPill');
+        if (streakPill) {
+            streakPill.textContent = `🔥 ${current}d Streak`;
+            streakPill.title = `Current streak: ${current} day(s) • Best: ${best} day(s)`;
+        }
+
         renderSelect();
-        renderHabits();
+        renderDashboardTagFilter();
+        renderHabits(liveHistory);
         renderAnalytics();
         if (!document.getElementById('analyticsView').classList.contains('hidden-view')) {
             renderAnalyticsPage();
         }
+    }
+
+    function renderDashboardTagFilter() {
+        const tags = getAllUniqueTags();
+        if (!tags.includes(dashboardTagFilter)) dashboardTagFilter = 'All';
+        const bar = document.getElementById('dashboardTagFilterBar');
+        if (!bar) return;
+
+        bar.innerHTML = `<span class="tag-filter-label">🏷️ Filter:</span>` + tags.map(tag => `
+            <button class="tag-pill-btn ${dashboardTagFilter === tag ? 'active' : ''}" 
+                onclick="setDashboardTagFilter('${escapeAttr(tag)}')">${tag === 'All' ? 'All' : '#' + escapeAttr(tag)}</button>
+        `).join('');
+    }
+
+    function setDashboardTagFilter(tag) {
+        dashboardTagFilter = tag;
+        renderDashboardTagFilter();
+        renderHabits(getLiveHistory());
     }
 
     function renderSelect() {
@@ -1543,15 +2219,30 @@
         }
     }
 
-    function renderHabits() {
+    function renderHabits(liveHistory = getLiveHistory()) {
         const list = document.getElementById('habitList');
-        list.innerHTML = habits.map(h => {
+        const filtered = dashboardTagFilter === 'All'
+            ? habits
+            : habits.filter(h => (h.tags || []).includes(dashboardTagFilter));
+
+        if (filtered.length === 0) {
+            list.innerHTML = `<div class="empty-chart-msg">No activities match the tag <strong>#${escapeAttr(dashboardTagFilter)}</strong>.</div>`;
+            return;
+        }
+
+        list.innerHTML = filtered.map(h => {
             const isOpenMode = !h.target || h.target <= 0;
             const pct = isOpenMode
                 ? (h.logged > 0 ? 100 : 0)
                 : Math.min(100, Math.round((h.logged / h.target) * 100));
 
             const extraMins = (!isOpenMode && h.logged > h.target) ? (h.logged - h.target) : 0;
+            const habitStreak = calculateHabitStreak(h, liveHistory);
+            const tagChips = (h.tags || []).map((t, tIdx) => `
+                <span class="habit-tag-chip">#${escapeAttr(t)}
+                    <button class="tag-remove-x" onclick="removeTagFromHabit(${h.id}, ${tIdx})" title="Remove tag">×</button>
+                </span>
+            `).join('');
 
             return `
                 <div class="habit-item">
@@ -1560,6 +2251,7 @@
                             <span class="dot" style="background-color: ${h.color}"></span>
                             <input type="text" class="habit-name-input" value="${escapeAttr(h.name)}" 
                                 onchange="renameHabit(${h.id}, this.value)" title="Click to rename">
+                            ${habitStreak > 0 ? `<span class="habit-streak-chip" title="${habitStreak}-day consecutive streak">🔥 ${habitStreak}d</span>` : ''}
                         </div>
                         <div class="habit-progress-text">
                             <span class="logged-highlight">${formatDuration(h.logged)}</span>
@@ -1568,6 +2260,11 @@
                                 : ` / ${formatDuration(h.target)} (${pct}%)`}
                             ${extraMins > 0 ? `<span class="extra-badge">+${formatDuration(extraMins)} extra</span>` : ''}
                         </div>
+                    </div>
+
+                    <div class="habit-tags-row">
+                        ${tagChips}
+                        <button class="btn-add-tag" onclick="addTagToHabit(${h.id})">+ Tag</button>
                     </div>
 
                     <div class="progress-bar-bg">
@@ -1605,6 +2302,26 @@
         }).join('');
     }
 
+    function addTagToHabit(id) {
+        const habit = habits.find(h => h.id === id);
+        if (!habit) return;
+        const raw = prompt(`Add a custom tag for "${habit.name}" (e.g. Study, Office, Home, Health):`);
+        if (!raw) return;
+        const cleanTags = raw.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean);
+        if (!cleanTags.length) return;
+        habit.tags = Array.from(new Set([...(habit.tags || []), ...cleanTags]));
+        renderAll();
+        saveData();
+    }
+
+    function removeTagFromHabit(id, tagIdx) {
+        const habit = habits.find(h => h.id === id);
+        if (!habit || !Array.isArray(habit.tags)) return;
+        habit.tags.splice(tagIdx, 1);
+        renderAll();
+        saveData();
+    }
+
     function renderAnalytics() {
         const totalLogged = habits.reduce((sum, h) => sum + h.logged, 0);
         const targetedHabits = habits.filter(h => h.target > 0);
@@ -1637,7 +2354,6 @@
             ? `⚠️ Exceeds 24h day by ${formatDuration(totalLogged - 1440)}`
             : `${formatDuration(remainingDayMins)} unlogged / free today`;
 
-        // Stacked Bar
         const stackedBar = document.getElementById('stackedBar');
         if (totalLogged === 0) {
             stackedBar.innerHTML = '';
@@ -1649,7 +2365,6 @@
             }).join('');
         }
 
-        // Breakdown List sorted by actual time spent
         const sorted = [...habits].sort((a, b) => b.logged - a.logged);
         const breakdownList = document.getElementById('breakdownList');
         breakdownList.innerHTML = sorted.map(h => {
@@ -1676,15 +2391,52 @@
         }).join('');
     }
 
-    // Separate Analytics Page Logic (Daily / Weekly / Monthly)
+    // Interactive Chart Tooltip Controls
+    function showChartTooltip(event, idx) {
+        const info = chartTooltipData[idx];
+        const tooltip = document.getElementById('chartTooltip');
+        if (!info || !tooltip) return;
+
+        tooltip.innerHTML = `
+            <div class="chart-tooltip-title">${escapeAttr(info.title)}</div>
+            ${info.lines.map(l => `<div class="chart-tooltip-line">${escapeAttr(l)}</div>`).join('')}
+        `;
+        tooltip.classList.add('visible');
+
+        const rect = event.currentTarget.getBoundingClientRect();
+        const tipW = tooltip.offsetWidth || 200;
+        const tipH = tooltip.offsetHeight || 70;
+
+        let left = rect.left + (rect.width / 2) - (tipW / 2);
+        left = Math.max(10, Math.min(window.innerWidth - tipW - 10, left));
+
+        let top = rect.top - tipH - 10;
+        if (top < 10) top = rect.bottom + 10;
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+    }
+
+    function hideChartTooltip() {
+        const tooltip = document.getElementById('chartTooltip');
+        if (tooltip) tooltip.classList.remove('visible');
+    }
+
+    // Separate Analytics Page Logic (Daily / Weekly / Monthly + Date Picker + Tag Filter)
     function openAnalytics() {
         document.getElementById('dashboardView').classList.add('hidden-view');
         document.getElementById('analyticsView').classList.remove('hidden-view');
+        const datePicker = document.getElementById('analyticsDatePicker');
+        if (datePicker) {
+            datePicker.max = getLocalDateKey();
+            datePicker.value = selectedAnalyticsDate;
+        }
         renderAnalyticsPage();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function closeAnalytics() {
+        hideChartTooltip();
         document.getElementById('analyticsView').classList.add('hidden-view');
         document.getElementById('dashboardView').classList.remove('hidden-view');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1695,15 +2447,37 @@
         document.getElementById('tabDaily').classList.toggle('active', range === 'daily');
         document.getElementById('tabWeekly').classList.toggle('active', range === 'weekly');
         document.getElementById('tabMonthly').classList.toggle('active', range === 'monthly');
+        hideChartTooltip();
         renderAnalyticsPage();
     }
 
-    function getRecentDateKeys(numDays) {
+    function onAnalyticsDateChange(dateStr) {
+        if (!dateStr) return;
+        selectedAnalyticsDate = dateStr;
+        hideChartTooltip();
+        renderAnalyticsPage();
+    }
+
+    function resetAnalyticsDateToToday() {
+        selectedAnalyticsDate = getLocalDateKey();
+        const dp = document.getElementById('analyticsDatePicker');
+        if (dp) dp.value = selectedAnalyticsDate;
+        hideChartTooltip();
+        renderAnalyticsPage();
+    }
+
+    function setAnalyticsTagFilter(tag) {
+        analyticsTagFilter = tag;
+        hideChartTooltip();
+        renderAnalyticsPage();
+    }
+
+    function getDateKeysEndingAt(endDateKey, numDays) {
         const keys = [];
-        const now = new Date();
+        const end = parseDateKey(endDateKey);
         for (let i = numDays - 1; i >= 0; i--) {
-            const d = new Date(now);
-            d.setDate(now.getDate() - i);
+            const d = new Date(end);
+            d.setDate(end.getDate() - i);
             keys.push({
                 key: getLocalDateKey(d),
                 shortDay: d.toLocaleDateString('en-US', { weekday: 'short' }),
@@ -1714,70 +2488,132 @@
         return keys;
     }
 
+    function getSnapshotHabitList(snap, fallbackTodayHabits = null) {
+        if (fallbackTodayHabits) return fallbackTodayHabits;
+        if (!snap || !snap.habits) return [];
+        return Object.entries(snap.habits).map(([id, h], idx) => {
+            const liveMatch = habits.find(lh => String(lh.id) === String(id) || lh.name === h.name);
+            return {
+                id: isNaN(Number(id)) ? id : Number(id),
+                name: h.name,
+                logged: h.logged || 0,
+                target: h.target || 0,
+                color: h.color || COLORS[idx % COLORS.length],
+                tags: Array.isArray(h.tags) && h.tags.length ? h.tags : (liveMatch ? liveMatch.tags : [])
+            };
+        });
+    }
+
     function renderAnalyticsPage() {
         const todayKey = getLocalDateKey();
-        // Always ensure live today data is reflected in analytics view
-        const liveHistory = { ...historyData, [todayKey]: buildDaySnapshot(habits) };
+        const liveHistory = getLiveHistory();
+        const { current: globalStreak, best: bestStreak } = calculateGlobalStreaks(liveHistory);
+
+        // Render Analytics Tag Filter Bar
+        const tags = getAllUniqueTags();
+        if (!tags.includes(analyticsTagFilter)) analyticsTagFilter = 'All';
+        const tagBar = document.getElementById('analyticsTagFilterBar');
+        if (tagBar) {
+            tagBar.innerHTML = `<span class="tag-filter-label">🏷️ Tag:</span>` + tags.map(t => `
+                <button class="tag-pill-btn ${analyticsTagFilter === t ? 'active' : ''}" 
+                    onclick="setAnalyticsTagFilter('${escapeAttr(t)}')">${t === 'All' ? 'All' : '#' + escapeAttr(t)}</button>
+            `).join('');
+        }
+
+        document.getElementById('apStreakVal').textContent = `${globalStreak}d`;
+        document.getElementById('apStreakSub').textContent = `Best: ${bestStreak}d`;
+
+        chartTooltipData = [];
 
         if (activeAnalyticsRange === 'daily') {
-            const snap = liveHistory[todayKey];
-            const pct = snap.totalTarget > 0 ? Math.min(100, Math.round((snap.effectiveCovered / snap.totalTarget) * 100)) : 0;
+            const isToday = selectedAnalyticsDate === todayKey;
+            const snap = liveHistory[selectedAnalyticsDate];
+            const rawItems = getSnapshotHabitList(snap, isToday ? habits : null);
+            const items = analyticsTagFilter === 'All'
+                ? rawItems
+                : rawItems.filter(h => (h.tags || []).includes(analyticsTagFilter));
 
-            document.getElementById('apTotalTime').textContent = formatDuration(snap.totalLogged);
-            document.getElementById('apTotalSub').textContent = 'Logged today';
-            document.getElementById('apAvgTime').textContent = `${snap.targetsHit} / ${snap.totalTargeted}`;
-            document.getElementById('apAvgSub').textContent = 'Targets hit today';
+            const totalLogged = items.reduce((s, h) => s + (h.logged || 0), 0);
+            const targeted = items.filter(h => h.target > 0);
+            const totalTarget = targeted.reduce((s, h) => s + h.target, 0);
+            const effectiveCovered = targeted.reduce((s, h) => s + Math.min(h.logged || 0, h.target), 0);
+            const targetsHit = targeted.filter(h => (h.logged || 0) >= h.target).length;
+            const pct = totalTarget > 0 ? Math.min(100, Math.round((effectiveCovered / totalTarget) * 100)) : 0;
+
+            const niceDate = isToday ? 'Today' : parseDateKey(selectedAnalyticsDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            document.getElementById('apTotalTime').textContent = formatDuration(totalLogged);
+            document.getElementById('apTotalSub').textContent = `Logged (${niceDate})`;
+            document.getElementById('apAvgTime').textContent = `${targetsHit} / ${targeted.length}`;
+            document.getElementById('apAvgSub').textContent = 'Targets hit';
             document.getElementById('apConsistency').textContent = `${pct}%`;
-            document.getElementById('apConsistencySub').textContent = `${formatDuration(snap.effectiveCovered)} / ${formatDuration(snap.totalTarget)}`;
+            document.getElementById('apConsistencySub').textContent = `${formatDuration(effectiveCovered)} / ${formatDuration(totalTarget)}`;
             document.getElementById('apTrackedDays').textContent = `${Object.keys(liveHistory).filter(k => (liveHistory[k]?.totalLogged || 0) > 0).length}`;
             document.getElementById('apBestDaySub').textContent = 'Total history days';
 
-            document.getElementById('apChartTitle').textContent = '📊 Today’s Activity Time Chart';
-            document.getElementById('apChartSubtitle').textContent = 'Minutes logged per habit today';
-            document.getElementById('apBreakdownSubtitle').textContent = 'Today’s time & target progress';
+            document.getElementById('apChartTitle').textContent = `📊 ${niceDate} Activity Chart`;
+            document.getElementById('apChartSubtitle').textContent = 'Tap or hover any bar for exact values';
+            document.getElementById('apBreakdownSubtitle').textContent = `${niceDate} progress (${analyticsTagFilter === 'All' ? 'All tags' : '#' + analyticsTagFilter})`;
 
-            const maxMins = Math.max(60, ...habits.map(h => h.logged));
+            const maxMins = Math.max(60, ...items.map(h => h.logged || 0));
             const chartEl = document.getElementById('apBarChart');
-            if (snap.totalLogged === 0) {
-                chartEl.innerHTML = `<div class="empty-chart-msg">No time logged yet today. Log a session on the dashboard to see today's visual chart.</div>`;
+
+            if (items.length === 0 || totalLogged === 0) {
+                chartEl.innerHTML = `<div class="empty-chart-msg">No logged time found for ${escapeAttr(niceDate)}${analyticsTagFilter !== 'All' ? ' under #' + escapeAttr(analyticsTagFilter) : ''}.</div>`;
             } else {
-                chartEl.innerHTML = `<div class="bar-chart-grid">${habits.map(h => {
+                chartEl.innerHTML = `<div class="bar-chart-grid rotated-labels">${items.map(h => {
                     const heightPct = Math.round((h.logged / maxMins) * 100);
-                    const shortName = h.name.split(' ')[0];
+                    const goalPct = h.target > 0 ? Math.round((h.logged / h.target) * 100) : 100;
+                    const idx = chartTooltipData.length;
+                    chartTooltipData.push({
+                        title: h.name,
+                        lines: [
+                            `Logged: ${formatDuration(h.logged)}${h.target > 0 ? ` / ${formatDuration(h.target)} (${goalPct}%)` : ' (Open)'}`,
+                            `Tags: ${(h.tags && h.tags.length) ? h.tags.map(t => '#' + t).join(', ') : 'None'}`
+                        ]
+                    });
                     return `
-                        <div class="bar-col" title="${escapeAttr(h.name)}: ${formatDuration(h.logged)}">
+                        <div class="bar-col" onclick="showChartTooltip(event, ${idx})" onmouseenter="showChartTooltip(event, ${idx})" onmouseleave="hideChartTooltip()">
                             <div class="bar-val-top">${h.logged > 0 ? formatDuration(h.logged) : '0m'}</div>
                             <div class="bar-track">
                                 <div class="bar-fill" style="height: ${heightPct}%; background-color: ${h.color}"></div>
                             </div>
-                            <div class="bar-label-bottom">${escapeAttr(shortName)}</div>
+                            <div class="bar-label-bottom">${escapeAttr(h.name)}</div>
                         </div>
                     `;
                 }).join('')}</div>`;
             }
 
-            const sorted = [...habits].sort((a, b) => b.logged - a.logged);
-            document.getElementById('apHabitBreakdown').innerHTML = sorted.map(h => {
-                const share = snap.totalLogged > 0 ? Math.round((h.logged / snap.totalLogged) * 100) : 0;
-                const barW = h.target > 0 ? Math.min(100, Math.round((h.logged / h.target) * 100)) : share;
-                return `
-                    <div class="habit-bar-row">
-                        <div class="habit-bar-head">
-                            <span class="breakdown-left"><span class="dot" style="background-color:${h.color}"></span><strong>${escapeAttr(h.name)}</strong></span>
-                            <span class="habit-bar-meta">${formatDuration(h.logged)} ${h.target > 0 ? `/ ${formatDuration(h.target)}` : ''} (${share}% share)</span>
+            const sorted = [...items].sort((a, b) => b.logged - a.logged);
+            document.getElementById('apHabitBreakdown').innerHTML = sorted.length === 0
+                ? `<div class="empty-chart-msg">No activity data for this selection.</div>`
+                : sorted.map(h => {
+                    const share = totalLogged > 0 ? Math.round((h.logged / totalLogged) * 100) : 0;
+                    const goalPct = h.target > 0 ? Math.min(100, Math.round((h.logged / h.target) * 100)) : (h.logged > 0 ? 100 : 0);
+                    const barColor = getStatusColor(goalPct);
+                    const streak = calculateHabitStreak(h, liveHistory);
+                    return `
+                        <div class="habit-bar-row">
+                            <div class="habit-bar-head">
+                                <span class="breakdown-left">
+                                    <span class="dot" style="background-color:${h.color}"></span>
+                                    <strong>${escapeAttr(h.name)}</strong>
+                                    ${streak > 0 ? `<span class="habit-streak-chip">🔥 ${streak}d</span>` : ''}
+                                </span>
+                                <span class="habit-bar-meta">${formatDuration(h.logged)} ${h.target > 0 ? `/ ${formatDuration(h.target)} (${goalPct}%)` : ''} • ${share}% share</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width:${goalPct}%; background-color:${barColor}"></div>
+                            </div>
                         </div>
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width:${barW}%; background-color:${h.color}"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
             return;
         }
 
-        // Weekly (7d) or Monthly (30d)
+        // Weekly (7d) or Monthly (30d) ending on selectedAnalyticsDate
         const numDays = activeAnalyticsRange === 'weekly' ? 7 : 30;
-        const dateList = getRecentDateKeys(numDays);
+        const dateList = getDateKeysEndingAt(selectedAnalyticsDate, numDays);
 
         let totalPeriodMins = 0;
         let totalPeriodCovered = 0;
@@ -1788,9 +2624,15 @@
 
         const daySeries = dateList.map(d => {
             const snap = liveHistory[d.key];
-            const logged = snap ? (snap.totalLogged || 0) : 0;
-            const covered = snap ? (snap.effectiveCovered || 0) : 0;
-            const target = snap ? (snap.totalTarget || 0) : 0;
+            const rawItems = getSnapshotHabitList(snap, d.key === todayKey ? habits : null);
+            const items = analyticsTagFilter === 'All'
+                ? rawItems
+                : rawItems.filter(h => (h.tags || []).includes(analyticsTagFilter));
+
+            const logged = items.reduce((s, h) => s + (h.logged || 0), 0);
+            const targeted = items.filter(h => h.target > 0);
+            const target = targeted.reduce((s, h) => s + h.target, 0);
+            const covered = targeted.reduce((s, h) => s + Math.min(h.logged || 0, h.target), 0);
 
             if (logged > 0) {
                 activeDays++;
@@ -1802,21 +2644,23 @@
                 }
             }
 
-            if (snap && snap.habits) {
-                Object.entries(snap.habits).forEach(([id, h]) => {
-                    const key = h.name || id;
-                    if (!habitTotals[key]) {
-                        habitTotals[key] = { name: h.name, color: h.color || '#3b82f6', logged: 0, daysActive: 0 };
-                    }
-                    habitTotals[key].logged += (h.logged || 0);
-                    if ((h.logged || 0) > 0) habitTotals[key].daysActive += 1;
-                });
-            }
+            items.forEach(h => {
+                const key = h.name;
+                if (!habitTotals[key]) {
+                    habitTotals[key] = { id: h.id, name: h.name, color: h.color || '#3b82f6', logged: 0, targetSum: 0, daysActive: 0 };
+                }
+                habitTotals[key].logged += (h.logged || 0);
+                if ((h.logged || 0) > 0) {
+                    habitTotals[key].daysActive += 1;
+                    habitTotals[key].targetSum += (h.target || 0);
+                }
+            });
 
             return {
                 ...d,
                 logged,
-                pct: target > 0 ? Math.min(100, Math.round((covered / target) * 100)) : 0
+                target,
+                pct: target > 0 ? Math.min(100, Math.round((covered / target) * 100)) : (logged > 0 ? 100 : 0)
             };
         });
 
@@ -1824,7 +2668,7 @@
         const consistencyPct = totalPeriodTarget > 0 ? Math.min(100, Math.round((totalPeriodCovered / totalPeriodTarget) * 100)) : 0;
 
         document.getElementById('apTotalTime').textContent = formatDuration(totalPeriodMins);
-        document.getElementById('apTotalSub').textContent = `Last ${numDays} days`;
+        document.getElementById('apTotalSub').textContent = `${numDays}d ending ${dateList[dateList.length - 1].shortDate}`;
         document.getElementById('apAvgTime').textContent = formatDuration(avgMins);
         document.getElementById('apAvgSub').textContent = activeDays > 0 ? `Across ${activeDays} logged day${activeDays > 1 ? 's' : ''}` : 'No days logged yet';
         document.getElementById('apConsistency').textContent = `${consistencyPct}%`;
@@ -1833,26 +2677,35 @@
         document.getElementById('apBestDaySub').textContent = bestDay.mins > 0 ? `Best: ${bestDay.label} (${formatDuration(bestDay.mins)})` : 'Start logging daily';
 
         document.getElementById('apChartTitle').textContent = activeAnalyticsRange === 'weekly'
-            ? '📅 Weekly Trend (Last 7 Days)'
-            : '🗓️ Monthly Trend (Last 30 Days)';
-        document.getElementById('apChartSubtitle').textContent = 'Total time logged per day';
-        document.getElementById('apBreakdownSubtitle').textContent = `Total & daily average across last ${numDays} days`;
+            ? `📅 Weekly Trend (${dateList[0].shortDate} – ${dateList[dateList.length - 1].shortDate})`
+            : `🗓️ Monthly Trend (30 Days Ending ${dateList[dateList.length - 1].shortDate})`;
+        document.getElementById('apChartSubtitle').textContent = 'Tap or hover any day for details';
+        document.getElementById('apBreakdownSubtitle').textContent = `Total & daily average across ${numDays} days`;
 
         const maxDayMins = Math.max(60, ...daySeries.map(d => d.logged));
         const chartEl = document.getElementById('apBarChart');
 
         if (totalPeriodMins === 0) {
-            chartEl.innerHTML = `<div class="empty-chart-msg">No logged history found for the last ${numDays} days yet. Your daily logs will appear here automatically as you track.</div>`;
+            chartEl.innerHTML = `<div class="empty-chart-msg">No logged history found for this ${numDays}-day window.</div>`;
         } else {
             chartEl.innerHTML = `<div class="bar-chart-grid" style="${numDays === 30 ? 'gap:4px;' : ''}">${daySeries.map(d => {
                 const hPct = Math.round((d.logged / maxDayMins) * 100);
                 const label = numDays === 7 ? d.shortDay : String(d.dayNum);
-                const barColor = d.key === todayKey ? 'var(--accent-green)' : 'var(--accent-blue)';
+                const barColor = d.key === todayKey ? 'var(--accent-green)' : getStatusColor(d.pct);
                 const topVal = numDays === 7
                     ? (d.logged > 0 ? formatDuration(d.logged) : '')
                     : (d.logged >= 60 ? `${Math.round(d.logged / 60)}h` : '');
+                const idx = chartTooltipData.length;
+                chartTooltipData.push({
+                    title: `${d.shortDay}, ${d.shortDate}`,
+                    lines: [
+                        `Logged: ${formatDuration(d.logged)}`,
+                        `Target Met: ${d.pct}%`
+                    ]
+                });
                 return `
-                    <div class="bar-col" style="${numDays === 30 ? 'min-width:14px;' : ''}" title="${d.shortDate}: ${formatDuration(d.logged)} (${d.pct}% target met)">
+                    <div class="bar-col" style="${numDays === 30 ? 'min-width:14px;' : ''}" 
+                        onclick="showChartTooltip(event, ${idx})" onmouseenter="showChartTooltip(event, ${idx})" onmouseleave="hideChartTooltip()">
                         <div class="bar-val-top">${topVal}</div>
                         <div class="bar-track" style="${numDays === 30 ? 'max-width:18px;' : ''}">
                             <div class="bar-fill" style="height: ${hPct}%; background-color: ${barColor}"></div>
@@ -1871,14 +2724,21 @@
             breakdownEl.innerHTML = breakdownArr.map(h => {
                 const share = totalPeriodMins > 0 ? Math.round((h.logged / totalPeriodMins) * 100) : 0;
                 const avgHabit = activeDays > 0 ? Math.round(h.logged / activeDays) : 0;
+                const targetPct = h.targetSum > 0 ? Math.min(100, Math.round((h.logged / h.targetSum) * 100)) : share;
+                const barColor = getStatusColor(targetPct);
+                const streak = calculateHabitStreak(h, liveHistory);
                 return `
                     <div class="habit-bar-row">
                         <div class="habit-bar-head">
-                            <span class="breakdown-left"><span class="dot" style="background-color:${h.color}"></span><strong>${escapeAttr(h.name)}</strong></span>
-                            <span class="habit-bar-meta">${formatDuration(h.logged)} total • Avg ${formatDuration(avgHabit)}/day (${share}%)</span>
+                            <span class="breakdown-left">
+                                <span class="dot" style="background-color:${h.color}"></span>
+                                <strong>${escapeAttr(h.name)}</strong>
+                                ${streak > 0 ? `<span class="habit-streak-chip">🔥 ${streak}d</span>` : ''}
+                            </span>
+                            <span class="habit-bar-meta">${formatDuration(h.logged)} total • Avg ${formatDuration(avgHabit)}/day (${share}% share)</span>
                         </div>
                         <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width:${share}%; background-color:${h.color}"></div>
+                            <div class="progress-bar-fill" style="width:${targetPct}%; background-color:${barColor}"></div>
                         </div>
                     </div>
                 `;
@@ -1930,9 +2790,14 @@
 
     function addNewHabit() {
         const nameInput = document.getElementById('newHabitName');
+        const tagsInput = document.getElementById('newHabitTags');
         const targetInput = document.getElementById('newHabitTarget');
         const name = nameInput.value.trim();
         const target = Math.max(0, parseInt(targetInput.value) || 0);
+        const tags = (tagsInput.value || '')
+            .split(',')
+            .map(t => t.trim().replace(/^#/, ''))
+            .filter(Boolean);
 
         if (!name) return;
 
@@ -1942,10 +2807,12 @@
             name,
             target,
             logged: 0,
-            color
+            color,
+            tags
         });
 
         nameInput.value = '';
+        tagsInput.value = '';
         renderAll();
         saveData();
     }
@@ -1959,8 +2826,7 @@
     }
 
     function newDayReset() {
-        if (confirm('Start fresh for a new day? (Past days stay saved in Analytics, and your custom targets/names remain unchanged)')) {
-            // Preserve previous day's log if the user resets on the next morning
+        if (confirm('Start fresh for a new day? (Past days stay saved in Analytics, and your custom targets/names/tags remain unchanged)')) {
             const lastDate = localStorage.getItem(LAST_DATE_KEY);
             const todayKey = getLocalDateKey();
             if (lastDate && lastDate !== todayKey && habits.some(h => h.logged > 0)) {
@@ -1975,7 +2841,7 @@
     }
 
     function restoreDefaultSchedule() {
-        if (confirm('Restore the default 9 activities and targets?')) {
+        if (confirm('Restore the default 9 activities, targets, and tags?')) {
             habits = JSON.parse(JSON.stringify(DEFAULT_HABITS));
             renderAll();
             saveData();
@@ -2083,10 +2949,11 @@
     // JSON & CSV Backup / Restore
     function exportData() {
         const payload = {
-            version: 2,
+            version: 3,
             exportedAt: new Date().toISOString(),
             habits,
-            history: historyData
+            history: historyData,
+            settings: appSettings
         };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
         const downloadAnchor = document.createElement('a');
@@ -2095,22 +2962,24 @@
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
-        showToast('Full JSON backup (habits + history) exported');
+        showToast('Full JSON backup (habits + tags + history) exported');
     }
 
     function exportCSV() {
         const todayKey = getLocalDateKey();
-        const combined = { ...historyData, [todayKey]: buildDaySnapshot(habits) };
-        const rows = [['Date', 'Habit', 'Logged (mins)', 'Target (mins)', 'Completed']];
+        const combined = getLiveHistory();
+        const rows = [['Date', 'Habit', 'Tags', 'Logged (mins)', 'Target (mins)', 'Completed']];
 
         Object.keys(combined).sort().forEach(dateKey => {
             const snap = combined[dateKey];
             if (!snap || !snap.habits) return;
             Object.values(snap.habits).forEach(h => {
                 const done = h.target > 0 ? (h.logged >= h.target ? 'Yes' : 'No') : 'Open';
+                const tagStr = Array.isArray(h.tags) ? h.tags.join('; ') : '';
                 rows.push([
                     dateKey,
                     `"${String(h.name).replace(/"/g, '""')}"`,
+                    `"${tagStr.replace(/"/g, '""')}"`,
                     h.logged || 0,
                     h.target || 0,
                     done
@@ -2136,20 +3005,23 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
-                    // Backward-compatible with older backups
-                    habits = imported;
+                    habits = normalizeHabits(imported);
                     renderAll();
                     saveData();
                     alert('Backup imported & synced to cloud successfully!');
                 } else if (imported && Array.isArray(imported.habits)) {
-                    habits = imported.habits;
+                    habits = normalizeHabits(imported.habits);
                     if (imported.history && typeof imported.history === 'object') {
                         historyData = { ...historyData, ...imported.history };
                         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
                     }
+                    if (imported.settings && typeof imported.settings === 'object') {
+                        appSettings = { ...DEFAULT_SETTINGS, ...imported.settings };
+                        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(appSettings));
+                    }
                     renderAll();
                     saveData();
-                    alert('Full backup (habits + history) imported & synced to cloud successfully!');
+                    alert('Full backup (habits + tags + history) imported & synced to cloud successfully!');
                 } else {
                     alert('Invalid JSON format.');
                 }
@@ -2161,7 +3033,7 @@
         event.target.value = '';
     }
 
-    // Expose functions globally for inline HTML event handlers (required for ES modules)
+    // Expose functions globally for inline HTML event handlers
     window.saveSelectedHabit = saveSelectedHabit;
     window.toggleTimer = toggleTimer;
     window.logSession = logSession;
@@ -2180,8 +3052,20 @@
     window.openAnalytics = openAnalytics;
     window.closeAnalytics = closeAnalytics;
     window.setAnalyticsRange = setAnalyticsRange;
+    window.onAnalyticsDateChange = onAnalyticsDateChange;
+    window.resetAnalyticsDateToToday = resetAnalyticsDateToToday;
+    window.setAnalyticsTagFilter = setAnalyticsTagFilter;
+    window.setDashboardTagFilter = setDashboardTagFilter;
+    window.addTagToHabit = addTagToHabit;
+    window.removeTagFromHabit = removeTagFromHabit;
     window.toggleTheme = toggleTheme;
     window.toggleNotifications = toggleNotifications;
+    window.openSettingsModal = openSettingsModal;
+    window.closeSettingsModal = closeSettingsModal;
+    window.saveAppSettings = saveAppSettings;
+    window.sendDailySummaryNow = sendDailySummaryNow;
+    window.showChartTooltip = showChartTooltip;
+    window.hideChartTooltip = hideChartTooltip;
 
     init();
 </script>
