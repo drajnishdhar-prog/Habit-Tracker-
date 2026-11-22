@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Habit & Time Analytics — Flexible Mode</title>
     <style>
         :root {
@@ -1159,6 +1161,317 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* =========================================================
+           GALAXY WATCH ULTRA — DEDICATED OLED SMARTWATCH VIEW
+           (Strictly isolated; does not alter Desktop/Mobile layout)
+           ========================================================= */
+        body.watch-mode-active {
+            background-color: #000000 !important;
+            color: #fafafa !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+        }
+
+        body.watch-mode-active .container {
+            display: none !important;
+        }
+
+        body.watch-mode-active .toast {
+            left: 50%;
+            right: auto;
+            bottom: 18px;
+            transform: translate(-50%, 12px);
+            max-width: 88vw;
+            padding: 8px 12px;
+            font-size: 0.76rem;
+            text-align: center;
+            background-color: #111114;
+            border-radius: 999px;
+        }
+
+        body.watch-mode-active .toast.show {
+            transform: translate(-50%, 0);
+        }
+
+        #watchView {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            padding: 26px 14px 52px 14px; /* Circular bezel safe-area padding */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #000000;
+            color: #fafafa;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .watch-top-summary {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 4px;
+            padding: 6px 8px 2px 8px;
+        }
+
+        .watch-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #a1a1aa;
+        }
+
+        .watch-sync-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #141418;
+            border: 1px solid #27272a;
+            font-size: 0.68rem;
+        }
+
+        .watch-sync-pill.synced { color: #10b981; border-color: rgba(16, 185, 129, 0.4); }
+        .watch-sync-pill.syncing { color: #06b6d4; border-color: rgba(6, 182, 212, 0.4); }
+        .watch-sync-pill.offline { color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); }
+
+        .watch-kpi-big {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #10b981;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .watch-kpi-sub {
+            font-size: 0.74rem;
+            color: #a1a1aa;
+            font-weight: 600;
+        }
+
+        .watch-card {
+            background-color: #111115;
+            border: 1px solid #27272a;
+            border-radius: 18px;
+            padding: 12px;
+        }
+
+        .watch-timer-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(180deg, #14141a 0%, #0d0d11 100%);
+        }
+
+        .watch-select {
+            width: 100%;
+            background-color: #000000;
+            color: #fafafa;
+            border: 1px solid #3f3f46;
+            border-radius: 12px;
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .watch-timer-readout {
+            font-size: 1.85rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.02em;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        .watch-timer-live-dot {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #10b981;
+            display: none;
+        }
+
+        .watch-timer-live-dot.active {
+            display: block;
+        }
+
+        .watch-timer-actions {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr 0.65fr;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .watch-btn {
+            min-height: 40px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 8px;
+            touch-action: manipulation;
+        }
+
+        .watch-btn:active {
+            transform: scale(0.95);
+        }
+
+        .watch-btn-start {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+
+        .watch-btn-start.running {
+            background-color: #f59e0b;
+            color: #000000;
+        }
+
+        .watch-btn-log {
+            background-color: #10b981;
+            color: #000000;
+        }
+
+        .watch-btn-reset {
+            background-color: #1f1f26;
+            color: #d4d4d8;
+            border: 1px solid #3f3f46;
+        }
+
+        .watch-section-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #71717a;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .watch-habit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .watch-habit-card {
+            background-color: #111115;
+            border: 1px solid #27272a;
+            border-radius: 18px;
+            padding: 11px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .watch-habit-card.completed {
+            border-color: rgba(16, 185, 129, 0.55);
+            background-color: #0a1712;
+        }
+
+        .watch-habit-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .watch-habit-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .watch-habit-name {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #fafafa;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .watch-habit-time {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: #a1a1aa;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .watch-habit-time strong {
+            color: #ffffff;
+        }
+
+        .watch-progress-bg {
+            width: 100%;
+            height: 6px;
+            background-color: #000000;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .watch-progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.25s ease;
+        }
+
+        .watch-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .watch-qbtn {
+            min-height: 36px;
+            border-radius: 12px;
+            background-color: #1c1c22;
+            color: #ffffff;
+            border: 1px solid #32323c;
+            font-size: 0.76rem;
+            font-weight: 700;
+            touch-action: manipulation;
+        }
+
+        .watch-qbtn:active {
+            transform: scale(0.94);
+            background-color: #2e2e38;
+        }
+
+        .watch-qbtn.minus {
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.35);
+        }
+
+        .watch-footer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 6px;
+            padding-bottom: 10px;
+        }
+
+        .watch-exit-btn {
+            background-color: #18181b;
+            color: #a1a1aa;
+            border: 1px solid #3f3f46;
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -1171,6 +1484,7 @@
             <span class="streak-pill" id="headerStreakPill" title="Consecutive days tracked">🔥 0d Streak</span>
         </div>
         <div class="header-right">
+            <button class="header-action-btn" id="watchNavBtn" onclick="openWatchView()" title="Switch to Galaxy Watch Ultra View">⌚ Watch</button>
             <button class="header-action-btn" id="analyticsNavBtn" onclick="openAnalytics()" title="Open Daily, Weekly & Monthly Charts">📈 Analytics</button>
             <button class="header-action-btn" id="notifToggleBtn" onclick="toggleNotifications()" title="Toggle Goal & Summary Alerts">🔕 Alerts Off</button>
             <button class="header-action-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Dark / OLED / Light / Auto">🌙 Dark</button>
@@ -1354,6 +1668,39 @@
     </div>
 </div>
 
+<!-- DEDICATED GALAXY WATCH ULTRA VIEW (OLED & Circular Screen Optimized) -->
+<div id="watchView" class="hidden-view">
+    <div class="watch-top-summary">
+        <div class="watch-status-row">
+            <span id="watchStreakPill">🔥 0d</span>
+            <span class="watch-sync-pill syncing" id="watchSyncStatus">🔄 Sync</span>
+        </div>
+        <div class="watch-kpi-big" id="watchPctBig">0%</div>
+        <div class="watch-kpi-sub" id="watchSummarySub">0m logged • 0/9 done</div>
+    </div>
+
+    <!-- Watch Focus Timer Card -->
+    <div class="watch-card watch-timer-card">
+        <select id="watchFocusSelect" class="watch-select" onchange="saveWatchSelectedHabit()"></select>
+        <div class="watch-timer-readout" id="watchTimerDisplay">00:00:00</div>
+        <div class="watch-timer-live-dot" id="watchTimerBgStatus">● Cloud Sync Running</div>
+        <div class="watch-timer-actions">
+            <button class="watch-btn watch-btn-start" id="watchStartStopBtn" onclick="toggleTimer()">▶ Start</button>
+            <button class="watch-btn watch-btn-log" onclick="logSession()">+ Log</button>
+            <button class="watch-btn watch-btn-reset" onclick="resetTimer()" title="Reset Timer">↺</button>
+        </div>
+    </div>
+
+    <div class="watch-section-label">Quick Habit Tracker</div>
+
+    <!-- Watch Touch-Friendly Habit Cards -->
+    <div class="watch-habit-list" id="watchHabitList"></div>
+
+    <div class="watch-footer-actions">
+        <button class="watch-exit-btn" onclick="closeWatchView()">🖥️ Full View</button>
+    </div>
+</div>
+
 <!-- SETTINGS MODAL (Daily Summary + Auto-Dark Scheduling + Service Worker) -->
 <div id="settingsModal" class="modal-backdrop hidden-view" onclick="if(event.target === this) closeSettingsModal()">
     <div class="modal-card">
@@ -1524,6 +1871,7 @@
     let selectedAnalyticsDate = getLocalDateKey();
     let dashboardTagFilter = 'All';
     let analyticsTagFilter = 'All';
+    let isWatchViewActive = false;
     let timerInterval = null;
     let toastTimeout = null;
     let swRegistration = null;
@@ -1543,9 +1891,17 @@
 
     function setSyncStatus(state, text) {
         const el = document.getElementById('syncStatus');
-        if (!el) return;
-        el.className = `sync-badge ${state}`;
-        el.textContent = text;
+        if (el) {
+            el.className = `sync-badge ${state}`;
+            el.textContent = text;
+        }
+        const watchEl = document.getElementById('watchSyncStatus');
+        if (watchEl) {
+            watchEl.className = `watch-sync-pill ${state}`;
+            if (state === 'synced') watchEl.textContent = '☁️ Synced';
+            else if (state === 'syncing') watchEl.textContent = '🔄 Syncing';
+            else watchEl.textContent = '⚠️ Offline';
+        }
     }
 
     function showToast(msg) {
@@ -1852,7 +2208,6 @@
         const todayKey = getLocalDateKey(today);
         let current = 0;
 
-        // If today has logged time, start counting from today; otherwise check from yesterday
         let cursor = new Date(today);
         if (!liveHistory[todayKey] || (liveHistory[todayKey].totalLogged || 0) <= 0) {
             cursor.setDate(cursor.getDate() - 1);
@@ -1868,7 +2223,6 @@
             }
         }
 
-        // Compute best historical streak
         const activeDates = Object.keys(liveHistory)
             .filter(k => (liveHistory[k]?.totalLogged || 0) > 0)
             .sort();
@@ -1930,6 +2284,92 @@
         localStorage.setItem(LAST_DATE_KEY, dateKey);
     }
 
+    // =========================================================
+    // GALAXY WATCH ULTRA VIEW LOGIC
+    // =========================================================
+    function openWatchView() {
+        isWatchViewActive = true;
+        document.body.classList.add('watch-mode-active');
+        document.getElementById('watchView').classList.remove('hidden-view');
+        renderWatchView();
+        restoreTimerState();
+        window.scrollTo({ top: 0 });
+    }
+
+    function closeWatchView() {
+        isWatchViewActive = false;
+        document.body.classList.remove('watch-mode-active');
+        document.getElementById('watchView').classList.add('hidden-view');
+        renderAll();
+        restoreTimerState();
+        window.scrollTo({ top: 0 });
+    }
+
+    function renderWatchView() {
+        const liveHistory = getLiveHistory();
+        const { current } = calculateGlobalStreaks(liveHistory);
+        const totalLogged = habits.reduce((sum, h) => sum + h.logged, 0);
+        const targetedHabits = habits.filter(h => h.target > 0);
+        const totalTarget = targetedHabits.reduce((sum, h) => sum + h.target, 0);
+        const effectiveCovered = targetedHabits.reduce((sum, h) => sum + Math.min(h.logged, h.target), 0);
+        const completedCount = targetedHabits.filter(h => h.logged >= h.target).length;
+        const overallPct = totalTarget > 0
+            ? Math.min(100, Math.round((effectiveCovered / totalTarget) * 100))
+            : (totalLogged > 0 ? 100 : 0);
+
+        const streakEl = document.getElementById('watchStreakPill');
+        if (streakEl) streakEl.textContent = `🔥 ${current}d`;
+
+        const pctEl = document.getElementById('watchPctBig');
+        if (pctEl) pctEl.textContent = `${overallPct}%`;
+
+        const subEl = document.getElementById('watchSummarySub');
+        if (subEl) subEl.textContent = `${formatDuration(totalLogged)} • ${completedCount}/${targetedHabits.length} done`;
+
+        const listEl = document.getElementById('watchHabitList');
+        if (!listEl) return;
+
+        listEl.innerHTML = habits.map(h => {
+            const isOpen = !h.target || h.target <= 0;
+            const pct = isOpen
+                ? (h.logged > 0 ? 100 : 0)
+                : Math.min(100, Math.round((h.logged / h.target) * 100));
+            const done = !isOpen && h.logged >= h.target;
+
+            return `
+                <div class="watch-habit-card ${done ? 'completed' : ''}">
+                    <div class="watch-habit-head">
+                        <div class="watch-habit-title-wrap">
+                            <span class="dot" style="background-color:${h.color}"></span>
+                            <span class="watch-habit-name">${escapeAttr(h.name)}</span>
+                        </div>
+                        <div class="watch-habit-time">
+                            <strong>${formatDuration(h.logged)}</strong>${isOpen ? '' : `/${formatDuration(h.target)}`}
+                        </div>
+                    </div>
+                    <div class="watch-progress-bg">
+                        <div class="watch-progress-fill" style="width:${pct}%; background-color:${done ? '#10b981' : h.color}"></div>
+                    </div>
+                    <div class="watch-quick-grid">
+                        <button class="watch-qbtn" onclick="adjustTime(${h.id}, 5)">+5m</button>
+                        <button class="watch-qbtn" onclick="adjustTime(${h.id}, 15)">+15m</button>
+                        <button class="watch-qbtn" onclick="adjustTime(${h.id}, 30)">+30m</button>
+                        <button class="watch-qbtn minus" onclick="adjustTime(${h.id}, -5)">-5m</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function saveWatchSelectedHabit() {
+        const watchSelect = document.getElementById('watchFocusSelect');
+        const mainSelect = document.getElementById('focusHabitSelect');
+        const val = parseInt(watchSelect.value) || null;
+        timerState.selectedHabitId = val;
+        if (mainSelect && val) mainSelect.value = val;
+        saveTimerState();
+    }
+
     function init() {
         applyTheme(currentTheme);
         updateNotifButton();
@@ -1954,6 +2394,15 @@
         restoreTimerState();
         startCloudSync();
         checkScheduledTasks();
+
+        // Auto-open Watch View on Galaxy Watch Ultra / small square-round screens or ?watch=1 URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const forceWatch = urlParams.get('watch') === '1' || urlParams.get('mode') === 'watch';
+        const forceFull = urlParams.get('watch') === '0';
+        const isWatchViewport = window.innerWidth <= 420 && window.innerHeight <= 460;
+        if (!forceFull && (forceWatch || isWatchViewport)) {
+            openWatchView();
+        }
 
         setInterval(checkScheduledTasks, 30000);
 
@@ -1981,7 +2430,6 @@
         });
         window.addEventListener('pageshow', updateTimerDisplay);
 
-        // Dismiss chart tooltip when tapping outside a chart column
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.bar-col')) hideChartTooltip();
         });
@@ -2157,7 +2605,10 @@
 
     function saveSelectedHabit() {
         const select = document.getElementById('focusHabitSelect');
-        timerState.selectedHabitId = parseInt(select.value) || null;
+        const watchSelect = document.getElementById('watchFocusSelect');
+        const val = parseInt(select.value) || null;
+        timerState.selectedHabitId = val;
+        if (watchSelect && val) watchSelect.value = val;
         saveTimerState();
     }
 
@@ -2187,6 +2638,9 @@
         if (!document.getElementById('analyticsView').classList.contains('hidden-view')) {
             renderAnalyticsPage();
         }
+        if (isWatchViewActive) {
+            renderWatchView();
+        }
     }
 
     function renderDashboardTagFilter() {
@@ -2209,13 +2663,21 @@
 
     function renderSelect() {
         const select = document.getElementById('focusHabitSelect');
+        const watchSelect = document.getElementById('watchFocusSelect');
         const currentVal = timerState.selectedHabitId || select.value;
+
         select.innerHTML = habits.map(h => {
             const targetLabel = h.target > 0 ? `Target: ${formatDuration(h.target)}` : 'Flexible / Open';
             return `<option value="${h.id}">${escapeAttr(h.name)} (${targetLabel})</option>`;
         }).join('');
+
+        if (watchSelect) {
+            watchSelect.innerHTML = habits.map(h => `<option value="${h.id}">${escapeAttr(h.name)}</option>`).join('');
+        }
+
         if (currentVal && habits.some(h => h.id == currentVal)) {
             select.value = currentVal;
+            if (watchSelect) watchSelect.value = currentVal;
         }
     }
 
@@ -2509,7 +2971,6 @@
         const liveHistory = getLiveHistory();
         const { current: globalStreak, best: bestStreak } = calculateGlobalStreaks(liveHistory);
 
-        // Render Analytics Tag Filter Bar
         const tags = getAllUniqueTags();
         if (!tags.includes(analyticsTagFilter)) analyticsTagFilter = 'All';
         const tagBar = document.getElementById('analyticsTagFilterBar');
@@ -2755,6 +3216,9 @@
             renderAll();
             saveData();
             checkGoalNotifications(habit, prevLogged);
+            if (isWatchViewActive) {
+                showToast(`${habit.name}: ${mins > 0 ? '+' : ''}${mins}m (${formatDuration(habit.logged)})`);
+            }
         }
     }
 
@@ -2857,31 +3321,41 @@
         return Math.max(0, Math.floor(totalMs / 1000));
     }
 
-    function restoreTimerState() {
+    function syncTimerControlsUI(running) {
         const btn = document.getElementById('startStopBtn');
         const bgStatus = document.getElementById('timerBgStatus');
+        const wBtn = document.getElementById('watchStartStopBtn');
+        const wStatus = document.getElementById('watchTimerBgStatus');
+
+        if (running) {
+            if (btn) { btn.textContent = '⏸ Pause'; btn.classList.add('running'); }
+            if (bgStatus) bgStatus.classList.add('active');
+            if (wBtn) { wBtn.textContent = '⏸ Pause'; wBtn.classList.add('running'); }
+            if (wStatus) wStatus.classList.add('active');
+        } else {
+            if (btn) { btn.textContent = '▶ Start'; btn.classList.remove('running'); }
+            if (bgStatus) bgStatus.classList.remove('active');
+            if (wBtn) { wBtn.textContent = '▶ Start'; wBtn.classList.remove('running'); }
+            if (wStatus) wStatus.classList.remove('active');
+        }
+    }
+
+    function restoreTimerState() {
         updateTimerDisplay();
 
         if (timerState.isRunning) {
-            btn.textContent = '⏸ Pause';
-            btn.classList.add('running');
-            bgStatus.classList.add('active');
+            syncTimerControlsUI(true);
             if (!timerInterval && !document.hidden) {
                 timerInterval = setInterval(updateTimerDisplay, 1000);
             }
         } else {
             clearInterval(timerInterval);
             timerInterval = null;
-            btn.textContent = '▶ Start';
-            btn.classList.remove('running');
-            bgStatus.classList.remove('active');
+            syncTimerControlsUI(false);
         }
     }
 
     function toggleTimer() {
-        const btn = document.getElementById('startStopBtn');
-        const bgStatus = document.getElementById('timerBgStatus');
-
         if (timerState.isRunning) {
             timerState.accumulatedMs += (Date.now() - timerState.startTime);
             timerState.startTime = null;
@@ -2890,19 +3364,18 @@
 
             clearInterval(timerInterval);
             timerInterval = null;
-            btn.textContent = '▶ Start';
-            btn.classList.remove('running');
-            bgStatus.classList.remove('active');
+            syncTimerControlsUI(false);
             updateTimerDisplay();
         } else {
+            const activeSelect = isWatchViewActive
+                ? document.getElementById('watchFocusSelect')
+                : document.getElementById('focusHabitSelect');
             timerState.startTime = Date.now();
             timerState.isRunning = true;
-            timerState.selectedHabitId = parseInt(document.getElementById('focusHabitSelect').value) || null;
+            timerState.selectedHabitId = parseInt(activeSelect.value) || null;
             saveTimerState();
 
-            btn.textContent = '⏸ Pause';
-            btn.classList.add('running');
-            bgStatus.classList.add('active');
+            syncTimerControlsUI(true);
             updateTimerDisplay();
             if (!timerInterval) {
                 timerInterval = setInterval(updateTimerDisplay, 1000);
@@ -2915,17 +3388,29 @@
         const hrs = String(Math.floor(elapsedSeconds / 3600)).padStart(2, '0');
         const mins = String(Math.floor((elapsedSeconds % 3600) / 60)).padStart(2, '0');
         const secs = String(elapsedSeconds % 60).padStart(2, '0');
-        document.getElementById('timerDisplay').textContent = `${hrs}:${mins}:${secs}`;
+        const formatted = `${hrs}:${mins}:${secs}`;
+
+        const mainEl = document.getElementById('timerDisplay');
+        if (mainEl) mainEl.textContent = formatted;
+        const watchEl = document.getElementById('watchTimerDisplay');
+        if (watchEl) watchEl.textContent = formatted;
     }
 
     function logSession() {
         const elapsedSeconds = getElapsedSeconds();
         if (elapsedSeconds < 30) {
-            alert('Run the timer for at least 30 seconds to log a session, or use the direct +/- buttons below.');
+            if (isWatchViewActive) {
+                showToast('Run timer 30s+ or tap +5m below');
+            } else {
+                alert('Run the timer for at least 30 seconds to log a session, or use the direct +/- buttons below.');
+            }
             return;
         }
         const mins = Math.max(1, Math.round(elapsedSeconds / 60));
-        const selectedId = parseInt(document.getElementById('focusHabitSelect').value);
+        const activeSelect = isWatchViewActive
+            ? document.getElementById('watchFocusSelect')
+            : document.getElementById('focusHabitSelect');
+        const selectedId = parseInt(activeSelect.value);
         adjustTime(selectedId, mins);
         resetTimer();
     }
@@ -2939,11 +3424,7 @@
         saveTimerState();
 
         updateTimerDisplay();
-        const btn = document.getElementById('startStopBtn');
-        const bgStatus = document.getElementById('timerBgStatus');
-        btn.textContent = '▶ Start';
-        btn.classList.remove('running');
-        bgStatus.classList.remove('active');
+        syncTimerControlsUI(false);
     }
 
     // JSON & CSV Backup / Restore
@@ -3035,6 +3516,9 @@
 
     // Expose functions globally for inline HTML event handlers
     window.saveSelectedHabit = saveSelectedHabit;
+    window.saveWatchSelectedHabit = saveWatchSelectedHabit;
+    window.openWatchView = openWatchView;
+    window.closeWatchView = closeWatchView;
     window.toggleTimer = toggleTimer;
     window.logSession = logSession;
     window.resetTimer = resetTimer;
