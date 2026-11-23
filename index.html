@@ -1802,6 +1802,7 @@
     const LAST_DATE_KEY = 'habitTrackerLastDate_v1';
     const SETTINGS_STORAGE_KEY = 'habitTrackerSettings_v1';
     const LAST_SUMMARY_DATE_KEY = 'habitTrackerLastSummaryDate_v1';
+    const WATCH_MODE_STORAGE_KEY = 'habitTrackerViewMode_v1';
 
     const COLORS = ['#6366f1', '#06b6d4', '#3b82f6', '#ef4444', '#14b8a6', '#f59e0b', '#8b5cf6', '#ec4899', '#10b981'];
 
@@ -2285,10 +2286,13 @@
     }
 
     // =========================================================
-    // GALAXY WATCH ULTRA VIEW LOGIC
+    // GALAXY WATCH ULTRA VIEW LOGIC (Device-Local Persistence)
     // =========================================================
-    function openWatchView() {
+    function openWatchView(persist = true) {
         isWatchViewActive = true;
+        if (persist) {
+            localStorage.setItem(WATCH_MODE_STORAGE_KEY, 'watch');
+        }
         document.body.classList.add('watch-mode-active');
         document.getElementById('watchView').classList.remove('hidden-view');
         renderWatchView();
@@ -2296,8 +2300,11 @@
         window.scrollTo({ top: 0 });
     }
 
-    function closeWatchView() {
+    function closeWatchView(persist = true) {
         isWatchViewActive = false;
+        if (persist) {
+            localStorage.setItem(WATCH_MODE_STORAGE_KEY, 'normal');
+        }
         document.body.classList.remove('watch-mode-active');
         document.getElementById('watchView').classList.add('hidden-view');
         renderAll();
@@ -2395,13 +2402,21 @@
         startCloudSync();
         checkScheduledTasks();
 
-        // Auto-open Watch View on Galaxy Watch Ultra / small square-round screens or ?watch=1 URL
+        // Device-local Watch View resolution (URL param -> saved localStorage preference -> watch screen size)
         const urlParams = new URLSearchParams(window.location.search);
         const forceWatch = urlParams.get('watch') === '1' || urlParams.get('mode') === 'watch';
-        const forceFull = urlParams.get('watch') === '0';
-        const isWatchViewport = window.innerWidth <= 420 && window.innerHeight <= 460;
-        if (!forceFull && (forceWatch || isWatchViewport)) {
-            openWatchView();
+        const forceFull = urlParams.get('watch') === '0' || urlParams.get('mode') === 'normal';
+        const savedViewMode = localStorage.getItem(WATCH_MODE_STORAGE_KEY);
+        const isWatchViewport = window.innerWidth <= 480 && window.innerHeight <= 500;
+
+        if (forceWatch) {
+            openWatchView(true);
+        } else if (forceFull) {
+            closeWatchView(true);
+        } else if (savedViewMode === 'watch') {
+            openWatchView(false);
+        } else if (savedViewMode !== 'normal' && isWatchViewport) {
+            openWatchView(false);
         }
 
         setInterval(checkScheduledTasks, 30000);
