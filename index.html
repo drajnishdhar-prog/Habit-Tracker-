@@ -152,6 +152,7 @@
             border: 1px solid var(--border-color);
             background-color: var(--bg-card);
             color: var(--text-secondary);
+            cursor: pointer;
         }
 
         .sync-badge.synced {
@@ -1236,6 +1237,7 @@
             background: #141418;
             border: 1px solid #27272a;
             font-size: 0.68rem;
+            cursor: pointer;
         }
 
         .watch-sync-pill.synced { color: #10b981; border-color: rgba(16, 185, 129, 0.4); }
@@ -1489,7 +1491,7 @@
             <button class="header-action-btn" id="notifToggleBtn" onclick="toggleNotifications()" title="Toggle Goal & Summary Alerts">🔕 Alerts Off</button>
             <button class="header-action-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Dark / OLED / Light / Auto">🌙 Dark</button>
             <button class="header-action-btn" onclick="openSettingsModal()" title="Daily Summary & Auto-Dark Settings">⚙️</button>
-            <div class="sync-badge syncing" id="syncStatus">🔄 Connecting Cloud...</div>
+            <div class="sync-badge syncing" id="syncStatus" onclick="forceCloudSync()" title="Tap to force sync with Firebase Cloud">🔄 Connecting Cloud...</div>
             <div class="date-badge" id="currentDate"></div>
         </div>
     </header>
@@ -1673,7 +1675,7 @@
     <div class="watch-top-summary">
         <div class="watch-status-row">
             <span id="watchStreakPill">🔥 0d</span>
-            <span class="watch-sync-pill syncing" id="watchSyncStatus">🔄 Sync</span>
+            <span class="watch-sync-pill syncing" id="watchSyncStatus" onclick="forceCloudSync()">🔄 Sync</span>
         </div>
         <div class="watch-kpi-big" id="watchPctBig">0%</div>
         <div class="watch-kpi-sub" id="watchSummarySub">0m logged • 0/9 done</div>
@@ -1766,7 +1768,7 @@
     // Firebase Modular SDK Imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-analytics.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
     // Your Firebase Configuration
     const firebaseConfig = {
@@ -1793,7 +1795,9 @@
 
     // Local Storage Keys & Defaults
     const STORAGE_KEY = 'habitTrackerData_v5_ordered';
+    const HABITS_UPDATED_AT_KEY = 'habitTrackerHabitsUpdatedAt_v1';
     const TIMER_STORAGE_KEY = 'habitTrackerTimer_v5';
+    const TIMER_UPDATED_AT_KEY = 'habitTrackerTimerUpdatedAt_v1';
     const HISTORY_STORAGE_KEY = 'habitTrackerHistory_v1';
     const THEME_STORAGE_KEY = 'habitTrackerTheme_v1';
     const NOTIF_STORAGE_KEY = 'habitTrackerNotif_v1';
@@ -1838,6 +1842,15 @@
         autoThemeEnd: '06:00'
     };
 
+    function safeJsonParse(raw, fallback) {
+        if (!raw) return fallback;
+        try {
+            return JSON.parse(raw);
+        } catch (e) {
+            return fallback;
+        }
+    }
+
     function normalizeHabits(list) {
         if (!Array.isArray(list)) return JSON.parse(JSON.stringify(DEFAULT_HABITS));
         return list.map((h, idx) => ({
@@ -1851,19 +1864,25 @@
         }));
     }
 
-    let habits = normalizeHabits(JSON.parse(localStorage.getItem(STORAGE_KEY)) || DEFAULT_HABITS);
-    let historyData = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY)) || {};
-    let appSettings = { ...DEFAULT_SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY)) || {}) };
-    let timerState = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY)) || {
+    let habits = normalizeHabits(safeJsonParse(localStorage.getItem(STORAGE_KEY), null) || DEFAULT_HABITS);
+    let localHabitsUpdatedAt = Number(localStorage.getItem(HABITS_UPDATED_AT_KEY)) || 0;
+    let historyData = safeJsonParse(localStorage.getItem(HISTORY_STORAGE_KEY), {}) || {};
+    let appSettings = { ...DEFAULT_SETTINGS, ...(safeJsonParse(localStorage.getItem(SETTINGS_STORAGE_KEY), {}) || {}) };
+    let timerState = safeJsonParse(localStorage.getItem(TIMER_STORAGE_KEY), null) || {
         isRunning: false,
         startTime: null,
         accumulatedMs: 0,
         selectedHabitId: null
     };
-    let pendingSync = JSON.parse(localStorage.getItem(PENDING_SYNC_KEY)) || {
-        habits: false,
-        timer: false,
-        history: false
+    let localTimerUpdatedAt = Number(localStorage.getItem(TIMER_UPDATED_AT_KEY)) || 0;
+
+    const rawPending = safeJsonParse(localStorage.getItem(PENDING_SYNC_KEY), {}) || {};
+    let pendingSync = {
+        habits: !!rawPending.habits,
+        timer: !!rawPending.timer,
+        historyDates: Array.isArray(rawPending.historyDates)
+            ? rawPending.historyDates
+            : (rawPending.history ? [getLocalDateKey()] : [])
     };
 
     let currentTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
@@ -1877,6 +1896,7 @@
     let toastTimeout = null;
     let swRegistration = null;
     let chartTooltipData = [];
+    let isFlushing = false;
 
     function getLocalDateKey(date = new Date()) {
         const y = date.getFullYear();
@@ -1920,6 +1940,48 @@
 
     function savePendingFlags() {
         localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(pendingSync));
+    }
+
+    function markHistoryDatePending(dateKey) {
+        if (!dateKey) return;
+        if (!pendingSync.historyDates.includes(dateKey)) {
+            pendingSync.historyDates.push(dateKey);
+            savePendingFlags();
+        }
+    }
+
+    function clearPendingHistoryDates(dateKeys) {
+        if (!Array.isArray(dateKeys) || !dateKeys.length) return;
+        pendingSync.historyDates = pendingSync.historyDates.filter(k => !dateKeys.includes(k));
+        savePendingFlags();
+    }
+
+    // Per-date merge helper: keeps all dates from both local & cloud, preferring newer timestamp per day
+    function mergeHistoryMaps(localMap, cloudMap) {
+        const merged = { ...(localMap || {}) };
+        if (!cloudMap || typeof cloudMap !== 'object') return merged;
+
+        for (const [dateKey, cloudSnap] of Object.entries(cloudMap)) {
+            if (!cloudSnap || typeof cloudSnap !== 'object') continue;
+            const localSnap = merged[dateKey];
+            if (!localSnap) {
+                merged[dateKey] = cloudSnap;
+                continue;
+            }
+            const cloudTime = Number(cloudSnap.updatedAt) || 0;
+            const localTime = Number(localSnap.updatedAt) || 0;
+            const cloudLogged = Number(cloudSnap.totalLogged) || 0;
+            const localLogged = Number(localSnap.totalLogged) || 0;
+            const isLocallyPending = pendingSync.historyDates.includes(dateKey);
+
+            // If this date wasn't edited offline here, or cloud is strictly newer, take cloud
+            if (!isLocallyPending && (cloudTime >= localTime || (localTime === 0 && cloudLogged > localLogged))) {
+                merged[dateKey] = cloudSnap;
+            } else if (cloudTime > localTime) {
+                merged[dateKey] = cloudSnap;
+            }
+        }
+        return merged;
     }
 
     // Color-coded progress bar helper
@@ -2031,7 +2093,7 @@
 
     function getNotifiedToday() {
         const today = getLocalDateKey();
-        const saved = JSON.parse(localStorage.getItem(NOTIFIED_TODAY_KEY)) || { date: today, habitIds: [], allDone: false };
+        const saved = safeJsonParse(localStorage.getItem(NOTIFIED_TODAY_KEY), null) || { date: today, habitIds: [], allDone: false };
         if (saved.date !== today) {
             return { date: today, habitIds: [], allDone: false };
         }
@@ -2112,12 +2174,10 @@
     }
 
     function checkScheduledTasks() {
-        // Auto-Theme check
         if (currentTheme === 'auto') {
             applyTheme('auto');
         }
 
-        // Daily Summary Push Notification check
         if (notificationsEnabled && appSettings.dailySummaryEnabled) {
             const todayKey = getLocalDateKey();
             const lastSummaryDate = localStorage.getItem(LAST_SUMMARY_DATE_KEY);
@@ -2393,8 +2453,10 @@
             datePicker.max = todayKey;
         }
 
-        if (!historyData[todayKey] && habits.some(h => h.logged > 0)) {
-            updateHistoryForDate(todayKey);
+        // Safely archive local logs ONLY under the date they actually belong to (never misattribute yesterday to today)
+        const lastSavedDate = localStorage.getItem(LAST_DATE_KEY);
+        if (lastSavedDate && !historyData[lastSavedDate] && habits.some(h => h.logged > 0)) {
+            updateHistoryForDate(lastSavedDate);
         }
 
         renderAll();
@@ -2421,7 +2483,9 @@
 
         setInterval(checkScheduledTasks, 30000);
 
-        window.addEventListener('online', () => flushPendingSync());
+        window.addEventListener('online', () => {
+            flushPendingSync().then(() => hydrateFromCloud(false));
+        });
         window.addEventListener('offline', () => setSyncStatus('offline', '⚠️ Offline (Cached Locally)'));
 
         document.addEventListener('visibilitychange', () => {
@@ -2433,6 +2497,9 @@
             } else {
                 updateTimerDisplay();
                 checkScheduledTasks();
+                if (navigator.onLine) {
+                    flushPendingSync();
+                }
                 if (timerState.isRunning && !timerInterval) {
                     timerInterval = setInterval(updateTimerDisplay, 1000);
                 }
@@ -2450,22 +2517,155 @@
         });
     }
 
-    async function flushPendingSync() {
-        if (!navigator.onLine) return;
-        if (!pendingSync.habits && !pendingSync.timer && !pendingSync.history) return;
+    // Cloud-first pull & merge (prevents empty local cache from ever overwriting Firebase)
+    async function hydrateFromCloud(notify = false) {
+        if (!navigator.onLine) {
+            setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
+            return;
+        }
+        setSyncStatus('syncing', '🔄 Syncing Cloud...');
+        try {
+            const [habitsSnap, historySnap, timerSnap] = await Promise.all([
+                getDoc(habitsDocRef),
+                getDoc(historyDocRef),
+                getDoc(timerDocRef)
+            ]);
 
+            let needsRender = false;
+
+            // 1. Merge History (per-date, never loses past days)
+            if (historySnap.exists()) {
+                const cloudDays = historySnap.data()?.days;
+                if (cloudDays && typeof cloudDays === 'object') {
+                    const merged = mergeHistoryMaps(historyData, cloudDays);
+                    if (JSON.stringify(merged) !== JSON.stringify(historyData)) {
+                        historyData = merged;
+                        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
+                        needsRender = true;
+                    }
+                }
+            }
+
+            // 2. Hydrate Habits (cloud wins unless local has a newer unsynced edit)
+            if (habitsSnap.exists()) {
+                const data = habitsSnap.data();
+                const cloudUpdatedAt = Number(data?.updatedAt) || 0;
+                if (Array.isArray(data.items)) {
+                    const shouldAcceptCloud = !pendingSync.habits || cloudUpdatedAt >= localHabitsUpdatedAt;
+                    if (shouldAcceptCloud) {
+                        const normalized = normalizeHabits(data.items);
+                        if (JSON.stringify(normalized) !== JSON.stringify(habits)) {
+                            habits = normalized;
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+                            needsRender = true;
+                        }
+                        localHabitsUpdatedAt = cloudUpdatedAt || Date.now();
+                        localStorage.setItem(HABITS_UPDATED_AT_KEY, String(localHabitsUpdatedAt));
+                        if (data.activeDate) {
+                            localStorage.setItem(LAST_DATE_KEY, data.activeDate);
+                        }
+                        if (pendingSync.habits) {
+                            pendingSync.habits = false;
+                            savePendingFlags();
+                        }
+                    }
+                }
+            }
+
+            // 3. Hydrate Timer (cloud wins unless local has a newer unsynced edit)
+            if (timerSnap.exists()) {
+                const data = timerSnap.data();
+                const cloudUpdatedAt = Number(data?.updatedAt) || 0;
+                const shouldAcceptCloud = !pendingSync.timer || cloudUpdatedAt >= localTimerUpdatedAt;
+                if (shouldAcceptCloud) {
+                    const incoming = {
+                        isRunning: !!data.isRunning,
+                        startTime: data.startTime || null,
+                        accumulatedMs: data.accumulatedMs || 0,
+                        selectedHabitId: data.selectedHabitId || null
+                    };
+                    if (JSON.stringify(incoming) !== JSON.stringify(timerState)) {
+                        timerState = incoming;
+                        localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
+                        renderSelect();
+                        restoreTimerState();
+                    }
+                    localTimerUpdatedAt = cloudUpdatedAt || Date.now();
+                    localStorage.setItem(TIMER_UPDATED_AT_KEY, String(localTimerUpdatedAt));
+                    if (pendingSync.timer) {
+                        pendingSync.timer = false;
+                        savePendingFlags();
+                    }
+                }
+            }
+
+            if (needsRender) {
+                renderAll();
+            }
+
+            // Push any genuinely newer offline edits safely via merge
+            if (pendingSync.habits || pendingSync.timer || pendingSync.historyDates.length > 0) {
+                await flushPendingSync();
+            } else {
+                setSyncStatus('synced', '☁️ Cloud Synced');
+            }
+
+            if (notify) {
+                showToast('Synced latest habits & history from Firebase');
+            }
+        } catch (err) {
+            console.error('Cloud hydration failed:', err);
+            setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
+            if (notify) {
+                showToast('Could not reach Firebase right now');
+            }
+        }
+    }
+
+    function forceCloudSync() {
+        hydrateFromCloud(true);
+    }
+
+    async function flushPendingSync() {
+        if (!navigator.onLine || isFlushing) return;
+        if (!pendingSync.habits && !pendingSync.timer && pendingSync.historyDates.length === 0) return;
+
+        isFlushing = true;
         setSyncStatus('syncing', '🔄 Syncing Offline Changes...');
         try {
             if (pendingSync.habits) {
-                await setDoc(habitsDocRef, { items: habits, updatedAt: Date.now() });
+                const now = Date.now();
+                await setDoc(habitsDocRef, {
+                    items: habits,
+                    activeDate: localStorage.getItem(LAST_DATE_KEY) || getLocalDateKey(),
+                    updatedAt: now
+                }, { merge: true });
+                localHabitsUpdatedAt = now;
+                localStorage.setItem(HABITS_UPDATED_AT_KEY, String(now));
                 pendingSync.habits = false;
             }
-            if (pendingSync.history) {
-                await setDoc(historyDocRef, { days: historyData, updatedAt: Date.now() });
-                pendingSync.history = false;
+            if (pendingSync.historyDates.length > 0) {
+                const daysPatch = {};
+                const datesToClear = [...pendingSync.historyDates];
+                datesToClear.forEach(dateKey => {
+                    if (historyData[dateKey]) {
+                        daysPatch[dateKey] = historyData[dateKey];
+                    }
+                });
+                if (Object.keys(daysPatch).length > 0) {
+                    // MERGE ONLY modified dates — never overwrites other dates in Firebase
+                    await setDoc(historyDocRef, {
+                        days: daysPatch,
+                        updatedAt: Date.now()
+                    }, { merge: true });
+                }
+                clearPendingHistoryDates(datesToClear);
             }
             if (pendingSync.timer) {
-                await setDoc(timerDocRef, { ...timerState, updatedAt: Date.now() });
+                const now = Date.now();
+                await setDoc(timerDocRef, { ...timerState, updatedAt: now }, { merge: true });
+                localTimerUpdatedAt = now;
+                localStorage.setItem(TIMER_UPDATED_AT_KEY, String(now));
                 pendingSync.timer = false;
             }
             savePendingFlags();
@@ -2473,17 +2673,26 @@
         } catch (err) {
             console.error('Offline flush failed:', err);
             setSyncStatus('offline', '⚠️ Offline (Saved Locally)');
+        } finally {
+            isFlushing = false;
         }
     }
 
     function startCloudSync() {
+        // 1. Pull latest cloud state immediately on startup
+        hydrateFromCloud(false);
+
+        // 2. Real-time listener for Habits
         onSnapshot(habitsDocRef, (snapshot) => {
-            if (pendingSync.habits) {
-                flushPendingSync();
-                return;
-            }
             if (snapshot.exists()) {
                 const data = snapshot.data();
+                const cloudUpdatedAt = Number(data?.updatedAt) || 0;
+
+                if (pendingSync.habits && localHabitsUpdatedAt > cloudUpdatedAt) {
+                    flushPendingSync();
+                    return;
+                }
+
                 if (Array.isArray(data.items)) {
                     const normalized = normalizeHabits(data.items);
                     if (JSON.stringify(normalized) !== JSON.stringify(habits)) {
@@ -2491,9 +2700,19 @@
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
                         renderAll();
                     }
+                    localHabitsUpdatedAt = cloudUpdatedAt || Date.now();
+                    localStorage.setItem(HABITS_UPDATED_AT_KEY, String(localHabitsUpdatedAt));
+                    if (data.activeDate) {
+                        localStorage.setItem(LAST_DATE_KEY, data.activeDate);
+                    }
+                    if (pendingSync.habits) {
+                        pendingSync.habits = false;
+                        savePendingFlags();
+                    }
                 }
                 setSyncStatus('synced', '☁️ Cloud Synced');
             } else {
+                // Brand new empty Firestore database: seed initial habits safely
                 saveData();
             }
         }, (error) => {
@@ -2501,35 +2720,39 @@
             setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
         });
 
+        // 3. Real-time listener for History (ALWAYS merges all dates from cloud)
         onSnapshot(historyDocRef, (snapshot) => {
-            if (pendingSync.history) {
-                flushPendingSync();
-                return;
-            }
             if (snapshot.exists()) {
                 const data = snapshot.data();
                 if (data.days && typeof data.days === 'object') {
-                    const merged = { ...historyData, ...data.days };
+                    const merged = mergeHistoryMaps(historyData, data.days);
                     if (JSON.stringify(merged) !== JSON.stringify(historyData)) {
                         historyData = merged;
                         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
                         renderAll();
                     }
                 }
+                if (pendingSync.historyDates.length > 0) {
+                    flushPendingSync();
+                }
             } else if (Object.keys(historyData).length > 0) {
-                saveHistoryToCloud();
+                saveHistoryDatesToCloud(Object.keys(historyData));
             }
         }, (error) => {
             console.error("Firestore history sync error:", error);
         });
 
+        // 4. Real-time listener for Timer
         onSnapshot(timerDocRef, (snapshot) => {
-            if (pendingSync.timer) {
-                flushPendingSync();
-                return;
-            }
             if (snapshot.exists()) {
                 const data = snapshot.data();
+                const cloudUpdatedAt = Number(data?.updatedAt) || 0;
+
+                if (pendingSync.timer && localTimerUpdatedAt > cloudUpdatedAt) {
+                    flushPendingSync();
+                    return;
+                }
+
                 const incoming = {
                     isRunning: !!data.isRunning,
                     startTime: data.startTime || null,
@@ -2542,6 +2765,12 @@
                     renderSelect();
                     restoreTimerState();
                 }
+                localTimerUpdatedAt = cloudUpdatedAt || Date.now();
+                localStorage.setItem(TIMER_UPDATED_AT_KEY, String(localTimerUpdatedAt));
+                if (pendingSync.timer) {
+                    pendingSync.timer = false;
+                    savePendingFlags();
+                }
             } else {
                 saveTimerState();
             }
@@ -2550,32 +2779,40 @@
         });
     }
 
-    async function saveHistoryToCloud() {
+    async function saveHistoryDatesToCloud(dateKeys) {
+        const validKeys = (dateKeys || []).filter(k => historyData[k]);
+        if (!validKeys.length) return;
+
         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
         if (!navigator.onLine) {
-            pendingSync.history = true;
-            savePendingFlags();
+            validKeys.forEach(markHistoryDatePending);
             return;
         }
         try {
-            await setDoc(historyDocRef, { days: historyData, updatedAt: Date.now() });
-            pendingSync.history = false;
-            savePendingFlags();
+            const daysPatch = {};
+            validKeys.forEach(k => { daysPatch[k] = historyData[k]; });
+            await setDoc(historyDocRef, { days: daysPatch, updatedAt: Date.now() }, { merge: true });
+            clearPendingHistoryDates(validKeys);
         } catch (error) {
-            pendingSync.history = true;
-            savePendingFlags();
+            validKeys.forEach(markHistoryDatePending);
             console.error("Error saving history to cloud:", error);
         }
     }
 
-    async function saveData(dateKeyOverride = null) {
+    async function saveData(dateKeyOverride = null, extraDateKeysToSync = []) {
         const targetDateKey = dateKeyOverride || getLocalDateKey();
+        const now = Date.now();
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+        localHabitsUpdatedAt = now;
+        localStorage.setItem(HABITS_UPDATED_AT_KEY, String(now));
         updateHistoryForDate(targetDateKey);
+
+        const keysToSync = Array.from(new Set([targetDateKey, ...extraDateKeysToSync])).filter(k => historyData[k]);
 
         if (!navigator.onLine) {
             pendingSync.habits = true;
-            pendingSync.history = true;
+            keysToSync.forEach(markHistoryDatePending);
             savePendingFlags();
             setSyncStatus('offline', '⚠️ Offline (Cached Locally)');
             return;
@@ -2583,32 +2820,40 @@
 
         setSyncStatus('syncing', '🔄 Syncing...');
         try {
+            const daysPatch = {};
+            keysToSync.forEach(k => { daysPatch[k] = historyData[k]; });
+
             await Promise.all([
-                setDoc(habitsDocRef, { items: habits, updatedAt: Date.now() }),
-                setDoc(historyDocRef, { days: historyData, updatedAt: Date.now() })
+                setDoc(habitsDocRef, { items: habits, activeDate: targetDateKey, updatedAt: now }, { merge: true }),
+                // MERGE ONLY the updated date(s) — past history days in Firebase remain untouched
+                setDoc(historyDocRef, { days: daysPatch, updatedAt: now }, { merge: true })
             ]);
             pendingSync.habits = false;
-            pendingSync.history = false;
+            clearPendingHistoryDates(keysToSync);
             savePendingFlags();
             setSyncStatus('synced', '☁️ Cloud Synced');
         } catch (error) {
             console.error("Error saving habits to cloud:", error);
             pendingSync.habits = true;
-            pendingSync.history = true;
+            keysToSync.forEach(markHistoryDatePending);
             savePendingFlags();
             setSyncStatus('offline', '⚠️ Offline (Saved Locally)');
         }
     }
 
     async function saveTimerState() {
+        const now = Date.now();
         localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
+        localTimerUpdatedAt = now;
+        localStorage.setItem(TIMER_UPDATED_AT_KEY, String(now));
+
         if (!navigator.onLine) {
             pendingSync.timer = true;
             savePendingFlags();
             return;
         }
         try {
-            await setDoc(timerDocRef, { ...timerState, updatedAt: Date.now() });
+            await setDoc(timerDocRef, { ...timerState, updatedAt: now }, { merge: true });
             pendingSync.timer = false;
             savePendingFlags();
         } catch (error) {
@@ -3308,14 +3553,17 @@
         if (confirm('Start fresh for a new day? (Past days stay saved in Analytics, and your custom targets/names/tags remain unchanged)')) {
             const lastDate = localStorage.getItem(LAST_DATE_KEY);
             const todayKey = getLocalDateKey();
+            const extraDates = [];
+
             if (lastDate && lastDate !== todayKey && habits.some(h => h.logged > 0)) {
                 updateHistoryForDate(lastDate);
+                extraDates.push(lastDate);
             }
 
             habits.forEach(h => h.logged = 0);
             localStorage.removeItem(NOTIFIED_TODAY_KEY);
             renderAll();
-            saveData(todayKey);
+            saveData(todayKey, extraDates);
         }
     }
 
@@ -3507,8 +3755,10 @@
                     alert('Backup imported & synced to cloud successfully!');
                 } else if (imported && Array.isArray(imported.habits)) {
                     habits = normalizeHabits(imported.habits);
+                    let importedDateKeys = [];
                     if (imported.history && typeof imported.history === 'object') {
                         historyData = { ...historyData, ...imported.history };
+                        importedDateKeys = Object.keys(imported.history);
                         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
                     }
                     if (imported.settings && typeof imported.settings === 'object') {
@@ -3516,7 +3766,7 @@
                         localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(appSettings));
                     }
                     renderAll();
-                    saveData();
+                    saveData(getLocalDateKey(), importedDateKeys);
                     alert('Full backup (habits + tags + history) imported & synced to cloud successfully!');
                 } else {
                     alert('Invalid JSON format.');
@@ -3534,6 +3784,7 @@
     window.saveWatchSelectedHabit = saveWatchSelectedHabit;
     window.openWatchView = openWatchView;
     window.closeWatchView = closeWatchView;
+    window.forceCloudSync = forceCloudSync;
     window.toggleTimer = toggleTimer;
     window.logSession = logSession;
     window.resetTimer = resetTimer;
