@@ -1865,6 +1865,7 @@
     }
 
     let habits = normalizeHabits(safeJsonParse(localStorage.getItem(STORAGE_KEY), null) || DEFAULT_HABITS);
+    let activeTrackingDate = localStorage.getItem(LAST_DATE_KEY) || getLocalDateKey();
     let localHabitsUpdatedAt = Number(localStorage.getItem(HABITS_UPDATED_AT_KEY)) || 0;
     let historyData = safeJsonParse(localStorage.getItem(HISTORY_STORAGE_KEY), {}) || {};
     let appSettings = { ...DEFAULT_SETTINGS, ...(safeJsonParse(localStorage.getItem(SETTINGS_STORAGE_KEY), {}) || {}) };
@@ -1882,13 +1883,13 @@
         timer: !!rawPending.timer,
         historyDates: Array.isArray(rawPending.historyDates)
             ? rawPending.historyDates
-            : (rawPending.history ? [getLocalDateKey()] : [])
+            : (rawPending.history ? [getActiveDateKey()] : [])
     };
 
     let currentTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
     let notificationsEnabled = localStorage.getItem(NOTIF_STORAGE_KEY) === 'true';
     let activeAnalyticsRange = 'daily';
-    let selectedAnalyticsDate = getLocalDateKey();
+    let selectedAnalyticsDate = getActiveDateKey();
     let dashboardTagFilter = 'All';
     let analyticsTagFilter = 'All';
     let isWatchViewActive = false;
@@ -1908,6 +1909,48 @@
     function parseDateKey(dateKey) {
         const [y, m, d] = dateKey.split('-').map(Number);
         return new Date(y, m - 1, d);
+    }
+
+    function addDaysToDateKey(dateKey, deltaDays) {
+        const d = parseDateKey(dateKey);
+        d.setDate(d.getDate() + deltaDays);
+        return getLocalDateKey(d);
+    }
+
+    // Active tracking date supports starting the next day early (e.g., 10:30 PM bedtime reset)
+    // without overwriting or losing the current day's archived Analytics history.
+    function getActiveDateKey() {
+        const calendarToday = getLocalDateKey();
+        if (!activeTrackingDate) {
+            activeTrackingDate = calendarToday;
+            localStorage.setItem(LAST_DATE_KEY, activeTrackingDate);
+        }
+        // If activeTrackingDate is in the past and nothing is logged on screen, roll cleanly to today
+        if (activeTrackingDate < calendarToday && !habits.some(h => (h.logged || 0) > 0)) {
+            activeTrackingDate = calendarToday;
+            localStorage.setItem(LAST_DATE_KEY, activeTrackingDate);
+        }
+        return activeTrackingDate;
+    }
+
+    function updateDateBadge() {
+        const badge = document.getElementById('currentDate');
+        if (!badge) return;
+        const activeKey = getActiveDateKey();
+        const calendarToday = getLocalDateKey();
+        const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+        const formatted = parseDateKey(activeKey).toLocaleDateString('en-US', options);
+
+        if (activeKey > calendarToday) {
+            badge.textContent = `${formatted} • Next Day`;
+            badge.title = 'Tracking next day early — today is safely archived in Analytics';
+        } else if (activeKey < calendarToday) {
+            badge.textContent = `${formatted} • Open Day`;
+            badge.title = 'Still logging previous day — tap New Day Reset to archive & start today';
+        } else {
+            badge.textContent = formatted;
+            badge.title = 'Current tracking date';
+        }
     }
 
     function setSyncStatus(state, text) {
@@ -1960,6 +2003,7 @@
     function mergeHistoryMaps(localMap, cloudMap) {
         const merged = { ...(localMap || {}) };
         if (!cloudMap || typeof cloudMap !== 'object') return merged;
+        const activeKey = getActiveDateKey();
 
         for (const [dateKey, cloudSnap] of Object.entries(cloudMap)) {
             if (!cloudSnap || typeof cloudSnap !== 'object') continue;
@@ -1973,6 +2017,15 @@
             const cloudLogged = Number(cloudSnap.totalLogged) || 0;
             const localLogged = Number(localSnap.totalLogged) || 0;
             const isLocallyPending = pendingSync.historyDates.includes(dateKey);
+
+            // Safeguard: never let an empty 0m snapshot overwrite a real archived past day
+            if (cloudLogged === 0 && localLogged > 0 && dateKey !== activeKey) {
+                continue;
+            }
+            if (localLogged === 0 && cloudLogged > 0 && dateKey !== activeKey) {
+                merged[dateKey] = cloudSnap;
+                continue;
+            }
 
             // If this date wasn't edited offline here, or cloud is strictly newer, take cloud
             if (!isLocallyPending && (cloudTime >= localTime || (localTime === 0 && cloudLogged > localLogged))) {
@@ -2092,10 +2145,10 @@
     }
 
     function getNotifiedToday() {
-        const today = getLocalDateKey();
-        const saved = safeJsonParse(localStorage.getItem(NOTIFIED_TODAY_KEY), null) || { date: today, habitIds: [], allDone: false };
-        if (saved.date !== today) {
-            return { date: today, habitIds: [], allDone: false };
+        const activeKey = getActiveDateKey();
+        const saved = safeJsonParse(localStorage.getItem(NOTIFIED_TODAY_KEY), null) || { date: activeKey, habitIds: [], allDone: false };
+        if (saved.date !== activeKey) {
+            return { date: activeKey, habitIds: [], allDone: false };
         }
         return saved;
     }
@@ -2166,7 +2219,7 @@
         const pct = snap.totalTarget > 0
             ? Math.min(100, Math.round((snap.effectiveCovered / snap.totalTarget) * 100))
             : 0;
-        const { current } = calculateGlobalStreaks({ ...historyData, [getLocalDateKey()]: snap });
+        const { current } = calculateGlobalStreaks({ ...historyData, [getActiveDateKey()]: snap });
         return {
             title: '📊 Daily Habit Summary',
             body: `Logged ${formatDuration(snap.totalLogged)} • ${pct}% Target Met (${snap.targetsHit}/${snap.totalTargeted} goals) • 🔥 ${current}d Streak`
@@ -2174,6 +2227,8 @@
     }
 
     function checkScheduledTasks() {
+        updateDateBadge();
+
         if (currentTheme === 'auto') {
             applyTheme('auto');
         }
@@ -2260,17 +2315,16 @@
     }
 
     function getLiveHistory() {
-        const todayKey = getLocalDateKey();
-        return { ...historyData, [todayKey]: buildDaySnapshot(habits) };
+        const activeKey = getActiveDateKey();
+        return { ...historyData, [activeKey]: buildDaySnapshot(habits) };
     }
 
     function calculateGlobalStreaks(liveHistory) {
-        const today = new Date();
-        const todayKey = getLocalDateKey(today);
+        const anchorKey = getActiveDateKey();
         let current = 0;
 
-        let cursor = new Date(today);
-        if (!liveHistory[todayKey] || (liveHistory[todayKey].totalLogged || 0) <= 0) {
+        let cursor = parseDateKey(anchorKey);
+        if (!liveHistory[anchorKey] || (liveHistory[anchorKey].totalLogged || 0) <= 0) {
             cursor.setDate(cursor.getDate() - 1);
         }
 
@@ -2306,8 +2360,7 @@
     }
 
     function calculateHabitStreak(habit, liveHistory) {
-        const today = new Date();
-        const todayKey = getLocalDateKey(today);
+        const anchorKey = getActiveDateKey();
         const isHit = (snap) => {
             if (!snap || !snap.habits) return false;
             const entry = snap.habits[String(habit.id)] || Object.values(snap.habits).find(x => x.name === habit.name);
@@ -2315,8 +2368,8 @@
             return entry.target > 0 ? entry.logged >= entry.target : entry.logged > 0;
         };
 
-        let cursor = new Date(today);
-        if (!isHit(liveHistory[todayKey])) {
+        let cursor = parseDateKey(anchorKey);
+        if (!isHit(liveHistory[anchorKey])) {
             cursor.setDate(cursor.getDate() - 1);
         }
 
@@ -2342,7 +2395,6 @@
     function updateHistoryForDate(dateKey) {
         historyData[dateKey] = buildDaySnapshot(habits);
         localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
-        localStorage.setItem(LAST_DATE_KEY, dateKey);
     }
 
     // =========================================================
@@ -2442,15 +2494,13 @@
         updateNotifButton();
         registerServiceWorker();
 
-        const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
-
-        const todayKey = getLocalDateKey();
-        selectedAnalyticsDate = todayKey;
+        const activeKey = getActiveDateKey();
+        const calendarToday = getLocalDateKey();
+        selectedAnalyticsDate = activeKey;
         const datePicker = document.getElementById('analyticsDatePicker');
         if (datePicker) {
-            datePicker.value = todayKey;
-            datePicker.max = todayKey;
+            datePicker.value = activeKey;
+            datePicker.max = activeKey > calendarToday ? activeKey : calendarToday;
         }
 
         // Safely archive local logs ONLY under the date they actually belong to (never misattribute yesterday to today)
@@ -2533,20 +2583,7 @@
 
             let needsRender = false;
 
-            // 1. Merge History (per-date, never loses past days)
-            if (historySnap.exists()) {
-                const cloudDays = historySnap.data()?.days;
-                if (cloudDays && typeof cloudDays === 'object') {
-                    const merged = mergeHistoryMaps(historyData, cloudDays);
-                    if (JSON.stringify(merged) !== JSON.stringify(historyData)) {
-                        historyData = merged;
-                        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
-                        needsRender = true;
-                    }
-                }
-            }
-
-            // 2. Hydrate Habits (cloud wins unless local has a newer unsynced edit)
+            // 1. Hydrate Habits & activeDate first so mergeHistoryMaps knows the exact active tracking day
             if (habitsSnap.exists()) {
                 const data = habitsSnap.data();
                 const cloudUpdatedAt = Number(data?.updatedAt) || 0;
@@ -2561,13 +2598,29 @@
                         }
                         localHabitsUpdatedAt = cloudUpdatedAt || Date.now();
                         localStorage.setItem(HABITS_UPDATED_AT_KEY, String(localHabitsUpdatedAt));
-                        if (data.activeDate) {
+                        if (data.activeDate && data.activeDate !== activeTrackingDate) {
+                            activeTrackingDate = data.activeDate;
                             localStorage.setItem(LAST_DATE_KEY, data.activeDate);
+                            selectedAnalyticsDate = data.activeDate;
+                            needsRender = true;
                         }
                         if (pendingSync.habits) {
                             pendingSync.habits = false;
                             savePendingFlags();
                         }
+                    }
+                }
+            }
+
+            // 2. Merge History (per-date, never loses past days)
+            if (historySnap.exists()) {
+                const cloudDays = historySnap.data()?.days;
+                if (cloudDays && typeof cloudDays === 'object') {
+                    const merged = mergeHistoryMaps(historyData, cloudDays);
+                    if (JSON.stringify(merged) !== JSON.stringify(historyData)) {
+                        historyData = merged;
+                        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
+                        needsRender = true;
                     }
                 }
             }
@@ -2637,7 +2690,7 @@
                 const now = Date.now();
                 await setDoc(habitsDocRef, {
                     items: habits,
-                    activeDate: localStorage.getItem(LAST_DATE_KEY) || getLocalDateKey(),
+                    activeDate: getActiveDateKey(),
                     updatedAt: now
                 }, { merge: true });
                 localHabitsUpdatedAt = now;
@@ -2693,22 +2746,31 @@
                     return;
                 }
 
+                let changed = false;
+                if (data.activeDate && data.activeDate !== activeTrackingDate) {
+                    activeTrackingDate = data.activeDate;
+                    localStorage.setItem(LAST_DATE_KEY, data.activeDate);
+                    selectedAnalyticsDate = data.activeDate;
+                    changed = true;
+                }
+
                 if (Array.isArray(data.items)) {
                     const normalized = normalizeHabits(data.items);
                     if (JSON.stringify(normalized) !== JSON.stringify(habits)) {
                         habits = normalized;
                         localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
-                        renderAll();
+                        changed = true;
                     }
                     localHabitsUpdatedAt = cloudUpdatedAt || Date.now();
                     localStorage.setItem(HABITS_UPDATED_AT_KEY, String(localHabitsUpdatedAt));
-                    if (data.activeDate) {
-                        localStorage.setItem(LAST_DATE_KEY, data.activeDate);
-                    }
                     if (pendingSync.habits) {
                         pendingSync.habits = false;
                         savePendingFlags();
                     }
+                }
+
+                if (changed) {
+                    renderAll();
                 }
                 setSyncStatus('synced', '☁️ Cloud Synced');
             } else {
@@ -2800,9 +2862,11 @@
     }
 
     async function saveData(dateKeyOverride = null, extraDateKeysToSync = []) {
-        const targetDateKey = dateKeyOverride || getLocalDateKey();
+        const targetDateKey = dateKeyOverride || getActiveDateKey();
         const now = Date.now();
 
+        activeTrackingDate = targetDateKey;
+        localStorage.setItem(LAST_DATE_KEY, targetDateKey);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
         localHabitsUpdatedAt = now;
         localStorage.setItem(HABITS_UPDATED_AT_KEY, String(now));
@@ -2883,6 +2947,7 @@
     }
 
     function renderAll() {
+        updateDateBadge();
         const liveHistory = getLiveHistory();
         const { current, best } = calculateGlobalStreaks(liveHistory);
         const streakPill = document.getElementById('headerStreakPill');
@@ -3150,7 +3215,9 @@
         document.getElementById('analyticsView').classList.remove('hidden-view');
         const datePicker = document.getElementById('analyticsDatePicker');
         if (datePicker) {
-            datePicker.max = getLocalDateKey();
+            const activeKey = getActiveDateKey();
+            const calendarToday = getLocalDateKey();
+            datePicker.max = activeKey > calendarToday ? activeKey : calendarToday;
             datePicker.value = selectedAnalyticsDate;
         }
         renderAnalyticsPage();
@@ -3181,9 +3248,13 @@
     }
 
     function resetAnalyticsDateToToday() {
-        selectedAnalyticsDate = getLocalDateKey();
+        selectedAnalyticsDate = getActiveDateKey();
         const dp = document.getElementById('analyticsDatePicker');
-        if (dp) dp.value = selectedAnalyticsDate;
+        if (dp) {
+            const calendarToday = getLocalDateKey();
+            dp.max = selectedAnalyticsDate > calendarToday ? selectedAnalyticsDate : calendarToday;
+            dp.value = selectedAnalyticsDate;
+        }
         hideChartTooltip();
         renderAnalyticsPage();
     }
@@ -3227,9 +3298,16 @@
     }
 
     function renderAnalyticsPage() {
-        const todayKey = getLocalDateKey();
+        const activeKey = getActiveDateKey();
+        const calendarToday = getLocalDateKey();
         const liveHistory = getLiveHistory();
         const { current: globalStreak, best: bestStreak } = calculateGlobalStreaks(liveHistory);
+
+        const datePicker = document.getElementById('analyticsDatePicker');
+        if (datePicker) {
+            datePicker.max = activeKey > calendarToday ? activeKey : calendarToday;
+            datePicker.value = selectedAnalyticsDate;
+        }
 
         const tags = getAllUniqueTags();
         if (!tags.includes(analyticsTagFilter)) analyticsTagFilter = 'All';
@@ -3247,9 +3325,9 @@
         chartTooltipData = [];
 
         if (activeAnalyticsRange === 'daily') {
-            const isToday = selectedAnalyticsDate === todayKey;
+            const isActiveDay = selectedAnalyticsDate === activeKey;
             const snap = liveHistory[selectedAnalyticsDate];
-            const rawItems = getSnapshotHabitList(snap, isToday ? habits : null);
+            const rawItems = getSnapshotHabitList(snap, isActiveDay ? habits : null);
             const items = analyticsTagFilter === 'All'
                 ? rawItems
                 : rawItems.filter(h => (h.tags || []).includes(analyticsTagFilter));
@@ -3261,7 +3339,10 @@
             const targetsHit = targeted.filter(h => (h.logged || 0) >= h.target).length;
             const pct = totalTarget > 0 ? Math.min(100, Math.round((effectiveCovered / totalTarget) * 100)) : 0;
 
-            const niceDate = isToday ? 'Today' : parseDateKey(selectedAnalyticsDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const formattedSelected = parseDateKey(selectedAnalyticsDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const niceDate = isActiveDay
+                ? (activeKey === calendarToday ? 'Today' : `${formattedSelected} (Active)`)
+                : formattedSelected;
 
             document.getElementById('apTotalTime').textContent = formatDuration(totalLogged);
             document.getElementById('apTotalSub').textContent = `Logged (${niceDate})`;
@@ -3345,7 +3426,7 @@
 
         const daySeries = dateList.map(d => {
             const snap = liveHistory[d.key];
-            const rawItems = getSnapshotHabitList(snap, d.key === todayKey ? habits : null);
+            const rawItems = getSnapshotHabitList(snap, d.key === activeKey ? habits : null);
             const items = analyticsTagFilter === 'All'
                 ? rawItems
                 : rawItems.filter(h => (h.tags || []).includes(analyticsTagFilter));
@@ -3412,7 +3493,7 @@
             chartEl.innerHTML = `<div class="bar-chart-grid" style="${numDays === 30 ? 'gap:4px;' : ''}">${daySeries.map(d => {
                 const hPct = Math.round((d.logged / maxDayMins) * 100);
                 const label = numDays === 7 ? d.shortDay : String(d.dayNum);
-                const barColor = d.key === todayKey ? 'var(--accent-green)' : getStatusColor(d.pct);
+                const barColor = d.key === activeKey ? 'var(--accent-green)' : getStatusColor(d.pct);
                 const topVal = numDays === 7
                     ? (d.logged > 0 ? formatDuration(d.logged) : '')
                     : (d.logged >= 60 ? `${Math.round(d.logged / 60)}h` : '');
@@ -3550,21 +3631,55 @@
     }
 
     function newDayReset() {
-        if (confirm('Start fresh for a new day? (Past days stay saved in Analytics, and your custom targets/names/tags remain unchanged)')) {
-            const lastDate = localStorage.getItem(LAST_DATE_KEY);
-            const todayKey = getLocalDateKey();
-            const extraDates = [];
+        const currentKey = getActiveDateKey();
+        const calendarToday = getLocalDateKey();
+        const hasLoggedData = habits.some(h => (h.logged || 0) > 0);
+        const fmt = (k) => parseDateKey(k).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-            if (lastDate && lastDate !== todayKey && habits.some(h => h.logged > 0)) {
-                updateHistoryForDate(lastDate);
-                extraDates.push(lastDate);
+        // If already advanced ahead to tomorrow (e.g., after a 10:30 PM reset), reset only tomorrow without skipping another day
+        if (currentKey > calendarToday) {
+            if (!confirm(`You are already tracking ${fmt(currentKey)}.\n\nReset ${fmt(currentKey)}'s logged times back to 0m? (${fmt(calendarToday)} and all earlier days remain safely saved in Analytics.)`)) {
+                return;
             }
-
             habits.forEach(h => h.logged = 0);
             localStorage.removeItem(NOTIFIED_TODAY_KEY);
             renderAll();
-            saveData(todayKey, extraDates);
+            saveData(currentKey);
+            showToast(`Reset ${fmt(currentKey)} to 0m — past days untouched`);
+            return;
         }
+
+        // Before midnight (currentKey === calendarToday) -> archive today & advance to tomorrow for tonight's sleep
+        // After midnight (currentKey < calendarToday) -> archive previous day & move to today
+        const nextDateKey = currentKey < calendarToday
+            ? calendarToday
+            : addDaysToDateKey(calendarToday, 1);
+
+        const confirmMsg = currentKey === calendarToday
+            ? `Archive ${fmt(currentKey)} in Analytics and start fresh for ${fmt(nextDateKey)}?\n\n(${fmt(currentKey)}'s data will stay safely saved, and tonight's Sleep will log under ${fmt(nextDateKey)}.)`
+            : `Archive ${fmt(currentKey)} in Analytics and start fresh for ${fmt(nextDateKey)}?\n\n(Your custom targets, names, and tags remain unchanged.)`;
+
+        if (!confirm(confirmMsg)) return;
+
+        const extraDates = [];
+        // Archive the finishing day FIRST before clearing habits to 0m
+        if (hasLoggedData) {
+            updateHistoryForDate(currentKey);
+            extraDates.push(currentKey);
+        }
+
+        // Advance active tracking date to the new day
+        activeTrackingDate = nextDateKey;
+        localStorage.setItem(LAST_DATE_KEY, nextDateKey);
+        selectedAnalyticsDate = nextDateKey;
+
+        // Reset current habits to 0m for the new day only
+        habits.forEach(h => h.logged = 0);
+        localStorage.removeItem(NOTIFIED_TODAY_KEY);
+
+        renderAll();
+        saveData(nextDateKey, extraDates);
+        showToast(`Archived ${fmt(currentKey)} • Now tracking ${fmt(nextDateKey)}`);
     }
 
     function restoreDefaultSchedule() {
@@ -3696,7 +3811,7 @@
             version: 3,
             exportedAt: new Date().toISOString(),
             habits,
-            history: historyData,
+            history: getLiveHistory(),
             settings: appSettings
         };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
@@ -3766,7 +3881,7 @@
                         localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(appSettings));
                     }
                     renderAll();
-                    saveData(getLocalDateKey(), importedDateKeys);
+                    saveData(getActiveDateKey(), importedDateKeys);
                     alert('Full backup (habits + tags + history) imported & synced to cloud successfully!');
                 } else {
                     alert('Invalid JSON format.');
